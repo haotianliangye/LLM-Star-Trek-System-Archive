@@ -5,8 +5,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from "@google/genai";
+import { auth, db } from './firebase';
+import { signInAnonymously } from 'firebase/auth';
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, where, getDocs } from 'firebase/firestore';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: (import.meta as any).env?.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY });
 
 // --- DATA DEFINITIONS ---
 
@@ -268,6 +272,14 @@ export default function App() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   
+  const [user, loading] = useAuthState(auth);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      signInAnonymously(auth).catch(console.error);
+    }
+  }, [user, loading]);
+  
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
   const dragStartPos = useRef<{x: number, y: number} | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -315,10 +327,10 @@ export default function App() {
   const chatRef = useRef<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // When active Node changes, reset chat memory and log
+  // Fetch initial chats
   useEffect(() => {
-    setChatLog([]);
     chatRef.current = null;
+    setChatLog([]);
 
     if (isPanelOpen) {
       setTimeout(() => {
@@ -326,9 +338,41 @@ export default function App() {
         if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
         }
-      }, 100); // Slight delay to allow transition to start/finish
+      }, 100);
     }
-  }, [activeNode.id, isPanelOpen]);
+
+    if (!user) return;
+
+    const fetchChats = async () => {
+      const q = query(
+        collection(db, 'chat_messages'),
+        where('userId', '==', user.uid),
+        where('nodeId', '==', activeNode.id),
+        orderBy('createdAt', 'asc')
+      );
+      try {
+        const snapshot = await getDocs(q);
+        const msgs = snapshot.docs.map(d => ({ role: d.data().role as 'user'|'model', text: d.data().text }));
+        setChatLog(msgs);
+        
+        chatRef.current = ai.chats.create({
+          model: "gemini-3.1-flash-lite-preview",
+          config: {
+            maxOutputTokens: 8192,
+            systemInstruction: `You are the Cosmic AI Oracle, an ancient and highly advanced intelligence residing within the LLM Star Atlas. The user is asking about [${activeNode.en} - ${activeNode.cn}]. Reply playfully in a retro sci-fi 8-bit aesthetic. Use space/cyberpunk metaphors. IMPORTANT: You MUST reply in Chinese as the default language.`
+          },
+          history: msgs.map(m => ({
+            role: m.role,
+            parts: [{text: m.text}]
+          }))
+        });
+      } catch (e) {
+        console.error("Error fetching chats", e);
+      }
+    };
+
+    fetchChats();
+  }, [activeNode.id, user, isPanelOpen]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -338,9 +382,9 @@ export default function App() {
     e?.preventDefault();
     if (!inputValue.trim() || isTyping) return;
 
-    const query = inputValue.trim();
+    const queryInput = inputValue.trim();
     setInputValue("");
-    setChatLog(prev => [...prev, { role: 'user', text: query }, { role: 'model', text: "" }]);
+    setChatLog(prev => [...prev, { role: 'user', text: queryInput }, { role: 'model', text: "" }]);
     setIsTyping(true);
 
     try {
@@ -353,7 +397,7 @@ export default function App() {
           }
         });
       }
-      const streamResponse = await chatRef.current.sendMessageStream({ message: query });
+      const streamResponse = await chatRef.current.sendMessageStream({ message: queryInput });
       
       let fullText = "";
       for await (const chunk of streamResponse) {
@@ -366,6 +410,23 @@ export default function App() {
               return newLog;
            });
          }
+      }
+
+      if (user) {
+         await addDoc(collection(db, 'chat_messages'), {
+            userId: user.uid,
+            nodeId: activeNode.id,
+            role: 'user',
+            text: queryInput,
+            createdAt: serverTimestamp()
+         });
+         await addDoc(collection(db, 'chat_messages'), {
+            userId: user.uid,
+            nodeId: activeNode.id,
+            role: 'model',
+            text: fullText,
+            createdAt: serverTimestamp()
+         });
       }
     } catch (error: any) {
       console.error(error);
@@ -559,41 +620,52 @@ export default function App() {
             
             <div className="flex-1 flex flex-col bg-black/60 pt-4 overflow-hidden min-h-[150px]">
               {/* Chat History */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-4 font-mono text-xs max-h-[300px]">
-                {chatLog.length === 0 && (
-                  <div className="text-yellow-600 animate-pulse text-center pt-8">
-                    INITIALIZING QUANTUM UPLINK...
+              {!user ? (
+                 <div className="flex-1 flex flex-col items-center justify-center p-4">
+                   <div className="text-yellow-600 mb-4 text-center font-pixel text-[10px] animate-pulse">
+                     _ESTABLISHING_SECURE_LINK_<br/>
+                     <span className="text-gray-500 mt-2 block">Acquiring temporal identity...</span>
+                   </div>
+                 </div>
+              ) : (
+                <>
+                  <div className="flex-1 overflow-y-auto p-3 space-y-4 font-mono text-xs max-h-[300px]">
+                    {chatLog.length === 0 && (
+                      <div className="text-yellow-600 animate-pulse text-center pt-8">
+                        INITIALIZING QUANTUM UPLINK...
+                      </div>
+                    )}
+                    {chatLog.map((msg, i) => (
+                      <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                        <span className="text-[8px] text-gray-500 mb-1">{msg.role === 'user' ? 'GUEST_USER' : 'ORACLE_CORE'}</span>
+                        <div className={`p-2 border max-w-[90%] whitespace-pre-wrap break-words ${msg.role === 'user' ? 'border-cyan-500 text-cyan-400 bg-cyan-950/30' : 'border-yellow-500 text-yellow-400 bg-yellow-950/30'}`}>
+                          {msg.text}
+                        </div>
+                      </div>
+                    ))}
+                    <div ref={chatEndRef} />
                   </div>
-                )}
-                {chatLog.map((msg, i) => (
-                  <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                    <span className="text-[8px] text-gray-500 mb-1">{msg.role === 'user' ? 'GUEST_USER' : 'ORACLE_CORE'}</span>
-                    <div className={`p-2 border max-w-[90%] whitespace-pre-wrap break-words ${msg.role === 'user' ? 'border-cyan-500 text-cyan-400 bg-cyan-950/30' : 'border-yellow-500 text-yellow-400 bg-yellow-950/30'}`}>
-                      {msg.text}
-                    </div>
-                  </div>
-                ))}
-                <div ref={chatEndRef} />
-              </div>
 
-              {/* Chat Input */}
-              <form onSubmit={handleChatSubmit} className="p-2 bg-yellow-400/10 border-t border-yellow-400 flex gap-2">
-                <input 
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="REQUEST AI ANALYSIS..."
-                  className="flex-1 bg-black border border-white text-white font-mono text-xs px-2 py-2 outline-none focus:border-yellow-400"
-                  disabled={isTyping}
-                />
-                <button 
-                  type="submit"
-                  disabled={isTyping || !inputValue.trim()}
-                  className="bg-yellow-400 text-black font-bold text-xs px-4 py-2 hover:bg-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  RUN
-                </button>
-              </form>
+                  {/* Chat Input */}
+                  <form onSubmit={handleChatSubmit} className="p-2 bg-yellow-400/10 border-t border-yellow-400 flex gap-2">
+                    <input 
+                      type="text"
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      placeholder="REQUEST AI ANALYSIS..."
+                      className="flex-1 bg-black border border-white text-white font-mono text-xs px-2 py-2 outline-none focus:border-yellow-400"
+                      disabled={isTyping}
+                    />
+                    <button 
+                      type="submit"
+                      disabled={isTyping || !inputValue.trim()}
+                      className="bg-yellow-400 text-black font-bold text-xs px-4 py-2 hover:bg-yellow-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      RUN
+                    </button>
+                  </form>
+                </>
+              )}
             </div>
           </div>
           
