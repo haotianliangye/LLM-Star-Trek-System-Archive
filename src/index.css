@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-pixel: "Press Start 2P", monospace;
+}
+
+body {
+  background-color: #0c001a;
+  color: #00ff41;
+  font-family: inherit;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.crt-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+              linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.font-pixel {
+  font-family: 'Press Start 2P', monospace;
+}
+
+.retro-title {
+  text-transform: uppercase;
+  text-shadow: 4px 4px 0px #c026d3, -2px -2px 0px #0284c7;
+  letter-spacing: -2px;
+}
+
+.star {
+  position: absolute;
+  background: white;
+  animation: twinkle infinite alternate;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.1; }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Custom scrollbar for retro feel */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: #050510;
+  border-left: 2px solid #222;
+}
+::-webkit-scrollbar-thumb {
+  background: #4ade80;
+  border: 2px solid #16a34a;
+}

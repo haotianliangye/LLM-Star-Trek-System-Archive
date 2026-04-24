@@ -1,0 +1,6 @@
+{
+  "name": "LLM Star Trek: Retro 8-Bit Guide",
+  "description": "An 8-bit pixel art space adventure visualizing LLM mechanics like Embedding, KV Cache, Speculative Decoding, and RAG as sci-fi concepts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
