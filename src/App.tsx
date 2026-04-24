@@ -346,7 +346,7 @@ export default function App() {
     try {
       if (!chatRef.current) {
         chatRef.current = ai.chats.create({
-          model: "gemini-3-flash-preview",
+          model: "gemini-3.1-flash-lite-preview",
           config: {
             systemInstruction: `You are the Cosmic AI Oracle, an ancient and highly advanced intelligence residing within the LLM Star Atlas. The user is asking about [${activeNode.en} - ${activeNode.cn}]. Reply playfully in a retro sci-fi 8-bit aesthetic. Use space/cyberpunk metaphors. Be concise (max 3 short paragraphs). IMPORTANT: You MUST reply in Chinese as the default language.`
           }
