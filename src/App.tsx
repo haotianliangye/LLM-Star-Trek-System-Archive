@@ -357,18 +357,22 @@ export default function App() {
       
       let fullText = "";
       for await (const chunk of streamResponse) {
-         fullText += chunk.text;
-         setChatLog(prev => {
-            const newLog = [...prev];
-            newLog[newLog.length - 1].text = fullText;
-            return newLog;
-         });
+         if (chunk.text) {
+           fullText += chunk.text;
+           setChatLog(prev => {
+              if (prev.length === 0) return prev;
+              const newLog = [...prev];
+              newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: fullText };
+              return newLog;
+           });
+         }
       }
     } catch (error: any) {
       console.error(error);
       setChatLog(prev => {
+         if (prev.length === 0) return prev;
          const newLog = [...prev];
-         newLog[newLog.length - 1].text = `[ERROR: UPLINK FAILED. ${error?.message || error}]`;
+         newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: newLog[newLog.length - 1].text + `\n[ERROR: UPLINK FAILED. ${error?.message || error}]` };
          return newLog;
       });
     } finally {
