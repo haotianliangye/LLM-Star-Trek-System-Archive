@@ -113,7 +113,7 @@ const CONCEPTS: ConceptNode[] = [
     desc: '门控网络动态激活得分最高的少数专家计算，其余休眠。每次只唤醒需要的飞船。'
   },
   {
-    id: 'reasoning', en: 'REASONING', cn: '[推理路径]', icon: '🚀', color: '#EA580C',
+    id: 'reasoning', en: 'REASONING', cn: '[思维推演]', icon: '🚀', color: '#EA580C',
     x: 88, y: 79,
     archive: '深度探索：推理',
     metaphor: '"从单线链式跃迁到多路并发树探索的思维路线规划。"',
@@ -128,7 +128,7 @@ const CONCEPTS: ConceptNode[] = [
   },
   {
     id: 'rlhf', en: 'RLHF/DPO', cn: '[航向校准]', icon: '⚖\uFE0F', color: '#10B981',
-    x: 69, y: 79,
+    x: 78, y: 77,
     archive: '人类偏好：对齐',
     metaphor: '"造物主下达的强制干预，纠正即将滑向深渊的有害轨道。"',
     desc: '人类评委或直接偏好打分，修正答案向量落向的“好区域”。文明内部重新规划星路对齐偏好。'
@@ -149,7 +149,7 @@ const CONCEPTS: ConceptNode[] = [
   },
   {
     id: 'diffusion', en: 'DIFFUSION', cn: '[雕刻家]', icon: '🎨', color: '#D946EF',
-    x: 40, y: 79,
+    x: 40, y: 62,
     archive: '多模态生成：Diffusion',
     metaphor: '"从混沌的白噪音乱石堆中，一点点凿出惊世骇俗的形状。"',
     desc: '从纯噪声出发，在文本条件引导下逐步去噪重构像素。从混沌石料凿出雕像。'
@@ -195,6 +195,13 @@ const CONCEPTS: ConceptNode[] = [
     archive: '架构融合：Hybrid',
     metaphor: '"将恒星的爆发力与流体的无尽续航完美交织的新型星际联合体。"',
     desc: '混合架构（如 Jamba）。融合了 Transformer 强大的高并发注意力理解能力和 Mamba 极低推理成本的线性状态空间机制。在不同层交替使用两种架构，达到既能打又能跑的终极全能态。'
+  },
+  {
+    id: 'agent', en: 'AGENT', cn: '[自主星舰]', icon: '🤖', color: '#3B82F6',
+    x: 48, y: 79,
+    archive: '自主行动：Agent',
+    metaphor: '"配备独立决策大脑与工具舱的星际探索飞船，能自主规划航线并采集资源。"',
+    desc: '基于 ReAct (Reasoning and Action) 框架，让大模型不仅能推导下一步，还能调用外部工具（如 RAG）并观察结果，自主完成复杂的多步任务。'
   }
 ];
 
@@ -217,6 +224,8 @@ const LINKS = [
   { source: 'transformer', target: 'sft', dashed: true },
   { source: 'sft', target: 'rlhf' },
   { source: 'rlhf', target: 'reasoning', dashed: true },
+  { source: 'reasoning', target: 'agent', dashed: true },
+  { source: 'rag', target: 'agent', dashed: true },
   { source: 'latent', target: 'rag', dashed: true },
   { source: 'latent', target: 'diffusion', dashed: true },
   { source: 'diffusion', target: 'dit', dashed: true },
@@ -224,7 +233,9 @@ const LINKS = [
   { source: 'transformer', target: 'hybrid', dashed: true },
   { source: 'mamba', target: 'hybrid', dashed: true },
   { source: 'transformer', target: 'quantize', dashed: true },
-  { source: 'kv_cache', target: 'quantize', dashed: true }
+  { source: 'kv_cache', target: 'quantize', dashed: true },
+  { source: 'clip', target: 'diffusion', dashed: true },
+  { source: 'rag', target: 'transformer', dashed: true }
 ];
 
 // --- COMPONENTS ---
