@@ -106,7 +106,7 @@ const CONCEPTS: ConceptNode[] = [
     desc: '新 token 只需计算自己的 QKV，并读取已暂存的 KV 缓存。飞船不必每次重绘星图，只需看日志和眼前。'
   },
   {
-    id: 'moe', en: 'MOE', cn: '[专家特遣队]', icon: '👥', color: '#D97706',
+    id: 'moe', en: 'MoE', cn: '[专家特遣队]', icon: '👥', color: '#D97706',
     x: 88, y: 62,
     archive: '高效多任务：MoE',
     metaphor: '"庞大的休眠专家库与永远只唤醒最适合者的智能调度台。"',
@@ -205,6 +205,15 @@ const CONCEPTS: ConceptNode[] = [
   }
 ];
 
+const ZONES = [
+  { id: 'data', cn: '数据区', en: 'DATA/MAPPING', color: '#3B82F6', nodes: ['token', 'embedding', 'vector', 'clip'] },
+  { id: 'arch', cn: '架构区', en: 'ARCHITECTURES', color: '#9333EA', nodes: ['transformer', 'mamba', 'diffusion', 'dit', 'hybrid'] },
+  { id: 'mech', cn: '微观机理', en: 'MECHANISMS', color: '#F43F5E', nodes: ['attention', 'ffn', 'moe', 'rope', 'rmsnorm'] },
+  { id: 'eng', cn: '工程优化', en: 'ENGINEERING', color: '#14B8A6', nodes: ['kv_cache', 'flash_attn', 'quantize', 'speculative'] },
+  { id: 'train', cn: '训练范式', en: 'TRAINING/ALIGN', color: '#10B981', nodes: ['sft', 'rlhf'] },
+  { id: 'sys', cn: '系统层', en: 'SYSTEM/APP', color: '#F59E0B', nodes: ['rag', 'reasoning', 'agent'] }
+];
+
 const LINKS = [
   { source: 'token', target: 'embedding' },
   { source: 'embedding', target: 'vector' },
@@ -239,6 +248,36 @@ const LINKS = [
 ];
 
 // --- COMPONENTS ---
+
+// Computes convex hull using Monotone chain algorithm
+function getConvexHull(points: [number, number][]): [number, number][] {
+  if (points.length <= 3) return points;
+  
+  const sorted = [...points].sort((a, b) => a[0] !== b[0] ? a[0] - b[0] : a[1] - b[1]);
+  const cross = (o: [number, number], a: [number, number], b: [number, number]) => 
+    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+
+  const lower: [number, number][] = [];
+  for (const point of sorted) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) {
+      lower.pop();
+    }
+    lower.push(point);
+  }
+
+  const upper: [number, number][] = [];
+  for (let i = sorted.length - 1; i >= 0; i--) {
+    const point = sorted[i];
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0) {
+      upper.pop();
+    }
+    upper.push(point);
+  }
+
+  upper.pop();
+  lower.pop();
+  return lower.concat(upper);
+}
 
 const Starfield = () => {
   const [stars, setStars] = useState<{id: number, left: string, top: string, size: number, delay: number, dur: number, color: string}[]>([]);
@@ -520,7 +559,68 @@ export default function App() {
         >
           
           {/* SVG Connections Layer */}
+          {/* SVG Zones Sub-Layer (using viewBox for precise hull scaling) */}
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none z-0">
+            {ZONES.map((zone) => {
+              const activeNodes = nodes.filter(n => zone.nodes.includes(n.id));
+              if (activeNodes.length === 0) return null;
+              
+              // Pad each node with 8 control points to create organic rounded shape around it
+              const paddingX = 4;
+              const paddingY = 6;
+              const points: [number, number][] = [];
+              activeNodes.forEach(n => {
+                points.push([n.x - paddingX, n.y - paddingY]);
+                points.push([n.x + paddingX, n.y - paddingY]);
+                points.push([n.x + paddingX, n.y + paddingY]);
+                points.push([n.x - paddingX, n.y + paddingY]);
+                points.push([n.x, n.y - paddingY]);
+                points.push([n.x, n.y + paddingY]);
+                points.push([n.x - paddingX, n.y]);
+                points.push([n.x + paddingX, n.y]);
+              });
+
+              const hull = getConvexHull(points);
+              const pathData = hull.length > 0 ? "M " + hull.map(p => `${p[0]},${p[1]}`).join(" L ") + " Z" : "";
+
+              return (
+                <g key={zone.id}>
+                  {pathData && (
+                    <path 
+                      d={pathData}
+                      fill={`${zone.color}15`}
+                      stroke={`${zone.color}25`}
+                      strokeWidth="50"
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                      strokeDasharray="10 15"
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* SVG Connections & Text Layer */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
+            {/* Zones Text Layer */}
+            {ZONES.map((zone) => {
+              const activeNodes = nodes.filter(n => zone.nodes.includes(n.id));
+              if (activeNodes.length === 0) return null;
+              
+              // Find top-left-most region considering padded extents for the label
+              const minX = Math.min(...activeNodes.map(n => n.x)) - 6;
+              const minY = Math.min(...activeNodes.map(n => n.y)) - 8;
+
+              return (
+                <text key={`label-${zone.id}`} x={`${minX + 1}%`} y={`${minY + 2}%`} fill={zone.color} className="font-pixel text-[12px] opacity-80" dominantBaseline="hanging">
+                  [{zone.en}] {zone.cn}
+                </text>
+              );
+            })}
+
+            {/* Links Layer */}
             {LINKS.map((link, idx) => {
               const src = nodes.find(c => c.id === link.source);
               const tgt = nodes.find(c => c.id === link.target);
@@ -736,39 +836,42 @@ export default function App() {
               <section>
                 <h3 className="font-pixel text-green-400 mb-2">【 设定 】</h3>
                 <p>
-                  本项目是一个具象化、可交互的大语言模型（LLM）与深度学习核心概念拓扑图。我们将晦涩难懂的 AI 底层机器架构，隐喻为一场浩瀚的“星际航行”。在这里，数据是星辰，算法是航线，而各种模型则是演化出的不同文明。
-                  其作用在于帮助探索者构建对 AI 运行逻辑的全局观直觉，支持自由拖拽排列星区，您也可以随时点击对应节点开启“通讯通道”，获取更硬核的技术解析。
+                  本项目是一个具象化、可交互的大语言模型（LLM）与深度学习核心概念拓扑图。我将晦涩难懂的 AI 底层机器架构，隐喻为一场浩瀚的“星际航行”。在这里，数据是星辰，算法是航线，而各类模型则是演化出的不同星际文明。其作用在于帮助探索者构建对 AI 运行逻辑的全局观直觉，支持自由拖拽排列星区领空，您也可以随时点击对应节点开启“通讯通道”，获取更硬核的技术解析。
                 </p>
               </section>
 
               <section>
                 <h3 className="font-pixel text-green-400 mb-2">【 核心作用 】</h3>
                 <ul className="list-none space-y-2">
-                  <li><span className="text-cyan-400 font-pixel">· 概念可视化：</span>将零散的 AI 术语转化为可视化的星图节点，消除理解门槛。</li>
-                  <li><span className="text-cyan-400 font-pixel">· 脉络梳理：</span>通过连线揭示技术之间的依赖与递进关系（如：算法如何一步步从 Token 转化为具有推理能力的智能体）。</li>
-                  <li><span className="text-cyan-400 font-pixel">· 沉浸式速查：</span>自由拖拽节点进行沙盘推演，点击即可调阅每项技术的“航行日志”与“现实隐喻”，也可以在底下对话框与LLM对话讨论。迷失时可随时使用左下角 [一键还原] 重置星际坐标。</li>
+                  <li><span className="text-cyan-400 font-pixel">概念可视化：</span>将零散的 AI 术语转化为可视化的星图节点，并划分为六大核心星区，消除理解门槛。</li>
+                  <li><span className="text-cyan-400 font-pixel">脉络梳理：</span>通过虚实连线与区域划分，揭示技术间的依赖、递进与融合关系（如：散落的符号碎片，如何一步步演化为具备独立思想的自主星舰）。</li>
+                  <li><span className="text-cyan-400 font-pixel">沉浸式演练：</span>自由拖拽移动节点进行沙盘推演，点击即可调阅每项技术的“航行日志”与“现实隐喻”。迷失于深空时，可随时使用左下角 [一键还原] 重置星际坐标，或在终端与AI指挥官进行直接对话。</li>
                 </ul>
               </section>
 
               <section>
-                <h3 className="font-pixel text-green-400 mb-2">【 基础概念引擎解析 】</h3>
-                <p className="mb-4">为了安全航行，请领航员熟悉以下四大星区：</p>
+                <h3 className="font-pixel text-green-400 mb-2">【 星图导航：引擎与演化解析 】</h3>
+                <p className="mb-4">为了安全航行，请领航员熟悉以下宇宙疆域：</p>
                 <div className="space-y-4">
                   <div>
-                    <strong className="text-cyan-400 block mb-1">1. 物质起源（处理基础）</strong>
-                    <p>一切智能始于 Token [符号碎片]，它们不仅是文字，也是图像与声音的碎片。经由 Embedding [传送门] 算法，这些碎片被转化为机器唯一能理解的数学实体——Vector [向量原子]，并被投射到极高维度的 Latent Space [宇宙容器] 中。</p>
+                    <strong className="text-cyan-400 block mb-1">物质起源（数据与映射）</strong>
+                    <p>一切智能始于 Token [符号碎片]，它们在被赋予能量前只是虚无的编号。经由 Embedding [传送门] 唤醒，碎片被转化为机器能理解的 Vector [原子]，并投射到浩渺的 Latent Space [宇宙容器] 中。同时，CLIP [翻译官] 正打破维度壁垒，让图像与文本在同一个坐标系下共舞。</p>
                   </div>
                   <div>
-                    <strong className="text-cyan-400 block mb-1">2. 核心动力（Transformer 架构）</strong>
-                    <p>Transformer [超级文明] 是当前宇宙的主宰架构。它的内部运转依赖：Attention [探照灯] 在茫茫星海中寻找词汇间的动态关联；以及 FFN [前馈网络] 从千万亿参数中提取训练时沉淀的死知识。</p>
+                    <strong className="text-cyan-400 block mb-1">核心动力（架构引擎与微观机理）</strong>
+                    <p>Transformer [超级文明] 是当前宇宙的主宰。它的内核运转极为精妙：依靠 Attention [探照灯] 动态锚定星辰间的引力，经由 FFN [前馈网络] 提取沉淀的知识库；并在航行中使用 RoPE [位置编码] 赋予符号绝对的空间刻度，利用 RMSNorm [层归一化] 平抑能量波动。而在生成式的次生宇宙里，Diffusion [雕刻家] 正从白噪音的乱石堆中一点点凿出惊世骇俗的形状。</p>
                   </div>
                   <div>
-                    <strong className="text-cyan-400 block mb-1">3. 文明驯化（训练与对齐）</strong>
-                    <p>野生的模型充满混沌。我们需要通过 SFT [指令微调] 教导它们听懂人类对话，再使用 RLHF/DPO [航向校准] 强行干预，使其价值观与人类偏好（安全、有用）对齐。</p>
+                    <strong className="text-cyan-400 block mb-1">文明驯化（训练范式）</strong>
+                    <p>初生的模型充满混沌。我需要通过 SFT [指令微调] 教导它们听懂人类对话，再使用 RLHF/DPO [航向校准] 降下造物主的强制干预，使其价值观与人类偏好（安全、有用）完美对齐。</p>
                   </div>
                   <div>
-                    <strong className="text-cyan-400 block mb-1">4. 航速突破与外挂（工程优化与扩展）</strong>
-                    <p>为打破物理极限，我们发明了 KV Cache [航行日志] 和 Flash Attention [加速中继] 来加速生成；利用 MoE [专家特遣队] 降低能耗；更能通过 RAG [外接馆] 让飞船随时查阅外部的实时数据库，通过LoRA[便签贴]，轻量级改写方向以及 KV Cache[航行日志]，记忆过往路径等精妙战术。</p>
+                    <strong className="text-cyan-400 block mb-1">极致曲率与系统减负（工程优化）</strong>
+                    <p>为打破物理极限与算力壁垒，我点亮了一系列科技树：利用 KV Cache [航行日志] 和 Flash Attention [加速中继] 极速穿梭；组建 MoE [专家特遣队] 大幅降低全局能耗；派发 Speculative [预测舰] 实行投机解码；贴上 LoRA [便签贴] 轻量级改写航向；更通过 Quantize [压缩星图] 将庞大模型极致压缩，塞入微型探测器中。</p>
+                  </div>
+                  <div>
+                    <strong className="text-cyan-400 block mb-1">航向深渊与终极智力（系统与应用）</strong>
+                    <p>模型不再是孤岛。通过 RAG [外接馆] 可随时向星云边缘抛出钩爪，引出外部记忆卷轴；运用 Reasoning [思维推演] 从单链跃迁进化为多路并发的树状逻辑演练；最终，它们演化为配备了独立决策大脑与工具舱的 Agent [自主星舰]，能自主规划航线、观察环境并完成复杂任务。</p>
                   </div>
                 </div>
               </section>
@@ -777,10 +880,7 @@ export default function App() {
                 <h3 className="font-pixel text-green-400 mb-2">【 文明演进与未来展望 】</h3>
                 <div className="space-y-4">
                   <p>
-                    <strong className="text-cyan-400">MAMBA（流体文明）：</strong> 作为下一代文明的有力承接者，MAMBA（状态空间模型 SSM）摈弃了超级文明 Transformer 那种“全员互相注视”所带来的庞大算力负荷。它如流体般贯穿时间之矢，通过状态的高效压缩与更新，以极端的轻盈实现了线性时间复杂度，成为超长尺度航行的完美破局者。
-                  </p>
-                  <p>
-                    <strong className="text-cyan-400">架构展望：</strong> 星位图的演化从未停止。未来，Transformer 绝对的爆发力与 Mamba 无限的续航能力或将走向深度融合（混合架构）。配合 MoE（专家特遣队）的动态调度，乃至新型非线性预测计算，硅基生命将在无垠的参数太空中，找到更优雅的终极形态。
+                    星位图的演化从未停止。Mamba [流体文明] 作为破局者，摈弃了“全员互相注视”带来的庞大算力负荷，如流体般贯穿时间之矢，以极端的轻盈成为超长尺度航行的完美载体。而 DiT [架构跃迁] 与 Hybrid [混合文明] 正在展现不同架构间的终极交织——将恒星的绝对爆发力与流体的无限续航完美融合。硅基生命必将在无垠的参数太空中，找到更为优雅的全能态。
                   </p>
                 </div>
               </section>
