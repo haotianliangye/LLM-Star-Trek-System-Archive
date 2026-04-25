@@ -52,7 +52,7 @@ const CONCEPTS: ConceptNode[] = [
   {
     id: 'clip', en: 'CLIP', cn: '[翻译官]', icon: '▣', color: '#C026D3',
     x: 28, y: 21,
-    archive: '跨模态翻译：CLIP',
+    archive: '跨模态翻译：CLIP (Contrastive Language-Image Pre-training)',
     metaphor: '"打破维度壁垒的星际翻译官，让图与文在同一坐标系下共舞。"',
     desc: '训练视觉和文本编码器，用对比学习强制匹配的图文向量在 Latent Space 中占据同一坐标。以文搜图、零样本分类的基础。'
   },
@@ -101,14 +101,14 @@ const CONCEPTS: ConceptNode[] = [
   {
     id: 'kv_cache', en: 'KV CACHE', cn: '[航行日志]', icon: '💾', color: '#14B8A6',
     x: 78, y: 50,
-    archive: '微观机制：KV Cache',
+    archive: '微观机制：KV Cache (Key-Value Cache)',
     metaphor: '"母舰上刻录着每一颗途经星辰坐标的隐秘航行日志。"',
     desc: '新 token 只需计算自己的 QKV，并读取已暂存的 KV 缓存。飞船不必每次重绘星图，只需看日志和眼前。'
   },
   {
     id: 'moe', en: 'MoE', cn: '[专家特遣队]', icon: '👥', color: '#D97706',
     x: 88, y: 62,
-    archive: '高效多任务：MoE',
+    archive: '高效多任务：MoE (Mixture of Experts)',
     metaphor: '"庞大的休眠专家库与永远只唤醒最适合者的智能调度台。"',
     desc: '门控网络动态激活得分最高的少数专家计算，其余休眠。每次只唤醒需要的飞船。'
   },
@@ -122,21 +122,21 @@ const CONCEPTS: ConceptNode[] = [
   {
     id: 'lora', en: 'LoRA', cn: '[便签贴]', icon: '🏷\uFE0F', color: '#64748B',
     x: 78, y: 7,
-    archive: '文明新技能：LoRA',
+    archive: '文明新技能：LoRA (Low-Rank Adaptation)',
     metaphor: '"贴在时间坐标轴上的轻量级导航便签，不触碰古老的主体星图。"',
     desc: '冻结原始权重，附加极小矩阵。不修改城市地图，只在路口贴热插拔的微小方向便签。'
   },
   {
     id: 'rlhf', en: 'RLHF/DPO', cn: '[航向校准]', icon: '⚖\uFE0F', color: '#10B981',
     x: 78, y: 77,
-    archive: '人类偏好：对齐',
+    archive: '人类偏好：RLHF (Reinforcement Learning from Human Feedback) / DPO (Direct Preference Optimization)',
     metaphor: '"造物主下达的强制干预，纠正即将滑向深渊的有害轨道。"',
     desc: '人类评委或直接偏好打分，修正答案向量落向的“好区域”。文明内部重新规划星路对齐偏好。'
   },
   {
     id: 'rag', en: 'RAG', cn: '[外接馆]', icon: '📚', color: '#F59E0B',
     x: 18, y: 79,
-    archive: '外置记忆库：RAG',
+    archive: '外置记忆库：RAG (Retrieval-Augmented Generation)',
     metaphor: '"游离在星云边缘的阿卡夏记录，随时以钩爪抓取所需的上古卷轴。"',
     desc: '把相关典籍化作向量存入数据库。提问前抛出钩爪引出档案暂存入工作记忆。外化长期记忆。'
   },
@@ -157,35 +157,35 @@ const CONCEPTS: ConceptNode[] = [
   {
     id: 'rope', en: 'RoPE', cn: '[位置编码]', icon: '🧭', color: '#14B8A6',
     x: 58, y: 7,
-    archive: '微观机制：RoPE',
+    archive: '微观机制：RoPE (Rotary Position Embedding)',
     metaphor: '"赋予无序符号以时间刻度，让词汇在星际空间中拥有绝对方向与相对距离。"',
     desc: '旋转位置编码，通过将词嵌入向量在复数空间中旋转特定的角度，为模型注入绝对位置信息，同时天然保持相对位置的衰减特性。'
   },
   {
     id: 'ffn', en: 'FFN', cn: '[前馈网络]', icon: '🧠', color: '#F43F5E',
     x: 69, y: 62,
-    archive: '微观机制：FFN',
+    archive: '微观机制：FFN (Feed-Forward Network)',
     metaphor: '"藏在庞大星云深处的知识仓库，每一次激活都是一次记忆的提取。"',
     desc: 'Transformer中除了Attention之外的另一大核心基石。Attention负责找寻线索，而FFN（或者MLP）负责在参数中回忆起训练时见过的知识。'
   },
   {
     id: 'rmsnorm', en: 'RMSNorm', cn: '[层归一化]', icon: '📏', color: '#8B5CF6',
     x: 69, y: 7,
-    archive: '微观机制：RMSNorm',
+    archive: '微观机制：RMSNorm (Root Mean Square Normalization)',
     metaphor: '"平抑能量波动的星路稳定器，确保深层跃迁不会迷失在数值爆炸的黑洞中。"',
     desc: '一种高效的层归一化方法，去除了均值计算，只按均方根缩放，极大提升了模型在大规模堆叠层数时的训练稳定性和计算速度。'
   },
   {
     id: 'sft', en: 'SFT', cn: '[指令微调]', icon: '🎯', color: '#22C55E',
     x: 58, y: 62,
-    archive: '人类偏好：SFT',
+    archive: '人类偏好：SFT (Supervised Fine-Tuning)',
     metaphor: '"教导混沌文明理解人类问询的第一所学校。"',
     desc: '通过提供高质量的 (指令, 回复) 数据对，将一个单纯只会玩“文字接龙”的基础模型，引导成为听懂人类指令对话的助手（Supervised Fine-Tuning）。'
   },
   {
     id: 'dit', en: 'DiT', cn: '[架构跃迁]', icon: '🧬', color: '#FCD34D',
     x: 48, y: 62,
-    archive: '架构融合：DiT',
+    archive: '架构融合：DiT (Diffusion Transformer)',
     metaphor: '"借用超级文明的核心高能引擎，驱动混沌乱石的精细雕刻机。"',
     desc: 'Diffusion Transformer (DiT)。将 Transformer 的宏大架构引入扩散模型，替代传统的 U-Net 后，使得模型在图像与视频生成上获得了惊人的规模扩展能力（Scaling Law），成为诸如视频生成巨兽 Sora 等的底层基柱。'
   },
@@ -199,7 +199,7 @@ const CONCEPTS: ConceptNode[] = [
   {
     id: 'agent', en: 'AGENT', cn: '[自主星舰]', icon: '🤖', color: '#3B82F6',
     x: 48, y: 79,
-    archive: '自主行动：Agent',
+    archive: '自主行动：Agent (Reasoning and Acting)',
     metaphor: '"配备独立决策大脑与工具舱的星际探索飞船，能自主规划航线并采集资源。"',
     desc: '基于 ReAct (Reasoning and Action) 框架，让大模型不仅能推导下一步，还能调用外部工具（如 RAG）并观察结果，自主完成复杂的多步任务。'
   }
