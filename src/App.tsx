@@ -209,7 +209,7 @@ const ZONES = [
   { id: 'data', cn: '数据区', en: 'DATA/MAPPING', color: '#3B82F6', nodes: ['token', 'embedding', 'vector', 'clip'] },
   { id: 'arch', cn: '架构区', en: 'ARCHITECTURES', color: '#9333EA', nodes: ['transformer', 'mamba', 'diffusion', 'dit', 'hybrid'] },
   { id: 'mech', cn: '微观机理', en: 'MECHANISMS', color: '#F43F5E', nodes: ['attention', 'ffn', 'moe', 'rope', 'rmsnorm'] },
-  { id: 'eng', cn: '工程优化', en: 'ENGINEERING', color: '#14B8A6', nodes: ['kv_cache', 'flash_attn', 'quantize', 'speculative'] },
+  { id: 'eng', cn: '工程优化', en: 'ENGINEERING', color: '#14B8A6', nodes: ['kv_cache', 'flash_attn', 'quantize', 'speculative', 'lora'] },
   { id: 'train', cn: '训练范式', en: 'TRAINING/ALIGN', color: '#10B981', nodes: ['sft', 'rlhf'] },
   { id: 'sys', cn: '系统层', en: 'SYSTEM/APP', color: '#F59E0B', nodes: ['rag', 'reasoning', 'agent'] }
 ];

@@ -1,20 +1,5 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
-
-// Prevent "Cannot set property fetch of #<Window> which has only a getter" error
-// caused by some versions of the SDKs trying to polyfill fetch globally.
-if (typeof window !== 'undefined') {
-  const originalFetch = window.fetch;
-  Object.defineProperty(window, 'fetch', {
-    configurable: true,
-    enumerable: true,
-    get: () => originalFetch,
-    set: (v) => {
-      // Ignore attempts to overwrite fetch
-    }
-  });
-}
-
 import App from './App.tsx';
 import './index.css';
 
