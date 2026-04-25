@@ -688,7 +688,7 @@ export default function LLMArchive({ showInfoModal, onCloseInfoModal }: { showIn
       </div>
 
       {/* Terminal / Detail Panel Area */}
-      <div className={`shrink-0 z-[100] bg-black transition-all duration-300 ease-in-out border-l-4 border-cyan-400 overflow-hidden shadow-[-20px_0_50px_rgba(0,0,0,0.8)] ${isPanelOpen ? 'w-full sm:w-[400px]' : 'w-0 border-l-0'}`}>
+      <div className={`shrink-0 z-[100] bg-black transition-all duration-300 ease-in-out overflow-hidden shadow-[-20px_0_50px_rgba(0,0,0,0.8)] ${isPanelOpen ? 'w-full sm:w-[400px] border-l-4 border-cyan-400' : 'w-0 border-l-0'}`}>
         <div className="w-full sm:w-[400px] h-full flex flex-col relative bg-black">
         {/* Top Header */}
         <div className="p-4 flex items-center justify-between border-b-2 border-cyan-400 shrink-0">
