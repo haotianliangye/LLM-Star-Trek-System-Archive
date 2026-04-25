@@ -13,9 +13,6 @@ export default defineConfig(({mode}) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
-        'formdata-polyfill/esm.min.js': path.resolve(__dirname, 'src/empty.js'),
-        'formdata-polyfill': path.resolve(__dirname, 'src/empty.js'),
-        'node-fetch': path.resolve(__dirname, 'src/empty.js'),
       },
     },
     server: {

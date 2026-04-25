@@ -36,25 +36,25 @@ const CONCEPTS: ConceptNode[] = [
     desc: '原始符号的碎片（词、子词），每个 token 都有一个整数 ID。经由 Embedding，ID 被唤醒为初始向量——所以 Token 只是名字，向量才是真正的语义实体。'
   },
   {
-    id: 'vector', en: 'VECTOR', cn: '[原子]', icon: '◈', color: '#E11D48',
+    id: 'embedding', en: 'EMBEDDING', cn: '[传送门]', icon: '🚪', color: '#3B82F6',
     x: 18, y: 40,
+    archive: '定位工具：Embedding',
+    metaphor: '"将离散羊群精准驱赶到宇宙坐标的星际传送牧羊人。"',
+    desc: '把离散符号投射到 Latent Space 中的精确坐标。牧羊人把羊群赶到宇宙草场的特定角落。后续操作都建立在这些向量坐标之上。'
+  },
+  {
+    id: 'vector', en: 'VECTOR', cn: '[原子]', icon: '◈', color: '#E11D48',
+    x: 28, y: 40,
     archive: '基本粒子：Vector',
     metaphor: '"指引方向的浮点数箭头，语义宇宙的量化本质。"',
     desc: '语义宇宙的最小单位——一个有序的浮点数列表。几何上它是从原点指向某点的箭头：方向编码语义类别，长度编码强度。一切信息变换的原子操作。'
   },
   {
     id: 'clip', en: 'CLIP', cn: '[翻译官]', icon: '▣', color: '#C026D3',
-    x: 18, y: 21,
+    x: 28, y: 21,
     archive: '跨模态翻译：CLIP',
     metaphor: '"打破维度壁垒的星际翻译官，让图与文在同一坐标系下共舞。"',
     desc: '训练视觉和文本编码器，用对比学习强制匹配的图文向量在 Latent Space 中占据同一坐标。以文搜图、零样本分类的基础。'
-  },
-  {
-    id: 'embedding', en: 'EMBEDDING', cn: '[传送门]', icon: '🚪', color: '#3B82F6',
-    x: 28, y: 40,
-    archive: '定位工具：Embedding',
-    metaphor: '"将离散羊群精准驱赶到宇宙坐标的星际传送牧羊人。"',
-    desc: '把离散符号投射到 Latent Space 中的精确坐标。牧羊人把羊群赶到宇宙草场的特定角落。后续操作都建立在这些向量坐标之上。'
   },
   {
     id: 'latent', en: 'LATENT SPACE', cn: '[宇宙容器]', icon: '🌌', color: '#9333EA',
@@ -93,14 +93,14 @@ const CONCEPTS: ConceptNode[] = [
   },
   {
     id: 'attention', en: 'ATTENTION', cn: '[探照灯]', icon: '🔦', color: '#06B6D4',
-    x: 70, y: 28,
+    x: 69, y: 28,
     archive: '微观机制：Attention',
     metaphor: '"恒星间的互相照亮与拉扯，用光斑指引下一次跃迁。"',
     desc: 'Q 与所有 K 做点积得到权重，再对 V 加权求和。让每颗星星动态决定向哪些邻居借力更新位置。'
   },
   {
     id: 'kv_cache', en: 'KV CACHE', cn: '[航行日志]', icon: '💾', color: '#14B8A6',
-    x: 78, y: 49,
+    x: 78, y: 50,
     archive: '微观机制：KV Cache',
     metaphor: '"母舰上刻录着每一颗途经星辰坐标的隐秘航行日志。"',
     desc: '新 token 只需计算自己的 QKV，并读取已暂存的 KV 缓存。飞船不必每次重绘星图，只需看日志和眼前。'
@@ -128,7 +128,7 @@ const CONCEPTS: ConceptNode[] = [
   },
   {
     id: 'rlhf', en: 'RLHF/DPO', cn: '[航向校准]', icon: '⚖\uFE0F', color: '#10B981',
-    x: 66, y: 79,
+    x: 69, y: 79,
     archive: '人类偏好：对齐',
     metaphor: '"造物主下达的强制干预，纠正即将滑向深渊的有害轨道。"',
     desc: '人类评委或直接偏好打分，修正答案向量落向的“好区域”。文明内部重新规划星路对齐偏好。'
@@ -142,10 +142,10 @@ const CONCEPTS: ConceptNode[] = [
   },
   {
     id: 'quantize', en: 'QUANTIZE', cn: '[压缩星图]', icon: '📉', color: '#0D9488',
-    x: 30, y: 79,
-    archive: '星际航行：量化',
-    metaphor: '"舍弃精微坐标系数换取极致便携的粗粒度三维网格。"',
-    desc: '精度压至 INT8/INT4，把高精星图改为网格索引。略微偏移但大幅节省显存空间。'
+    x: 78, y: 35,
+    archive: '参数压缩：量化',
+    metaphor: '"舍弃精微数据精度，换取极致便携的粗粒度参数网格。"',
+    desc: '精度压至 INT8/INT4，把模型权重矩阵和 KV Cache 改为低精度网格索引。以极微的精度损失大幅节省推理显存并加快速度。'
   },
   {
     id: 'diffusion', en: 'DIFFUSION', cn: '[雕刻家]', icon: '🎨', color: '#D946EF',
@@ -156,21 +156,21 @@ const CONCEPTS: ConceptNode[] = [
   },
   {
     id: 'rope', en: 'RoPE', cn: '[位置编码]', icon: '🧭', color: '#14B8A6',
-    x: 56, y: 7,
+    x: 58, y: 7,
     archive: '微观机制：RoPE',
     metaphor: '"赋予无序符号以时间刻度，让词汇在星际空间中拥有绝对方向与相对距离。"',
     desc: '旋转位置编码，通过将词嵌入向量在复数空间中旋转特定的角度，为模型注入绝对位置信息，同时天然保持相对位置的衰减特性。'
   },
   {
     id: 'ffn', en: 'FFN', cn: '[前馈网络]', icon: '🧠', color: '#F43F5E',
-    x: 70, y: 62,
+    x: 69, y: 62,
     archive: '微观机制：FFN',
     metaphor: '"藏在庞大星云深处的知识仓库，每一次激活都是一次记忆的提取。"',
     desc: 'Transformer中除了Attention之外的另一大核心基石。Attention负责找寻线索，而FFN（或者MLP）负责在参数中回忆起训练时见过的知识。'
   },
   {
     id: 'rmsnorm', en: 'RMSNorm', cn: '[层归一化]', icon: '📏', color: '#8B5CF6',
-    x: 64, y: 7,
+    x: 69, y: 7,
     archive: '微观机制：RMSNorm',
     metaphor: '"平抑能量波动的星路稳定器，确保深层跃迁不会迷失在数值爆炸的黑洞中。"',
     desc: '一种高效的层归一化方法，去除了均值计算，只按均方根缩放，极大提升了模型在大规模堆叠层数时的训练稳定性和计算速度。'
@@ -199,10 +199,10 @@ const CONCEPTS: ConceptNode[] = [
 ];
 
 const LINKS = [
-  { source: 'token', target: 'vector' },
+  { source: 'token', target: 'embedding' },
+  { source: 'embedding', target: 'vector' },
   { source: 'clip', target: 'vector', dashed: true },
-  { source: 'vector', target: 'embedding' },
-  { source: 'embedding', target: 'latent' },
+  { source: 'vector', target: 'latent' },
   { source: 'latent', target: 'transformer', dashed: true },
   { source: 'latent', target: 'mamba', dashed: true },
   { source: 'transformer', target: 'attention' },
@@ -218,12 +218,13 @@ const LINKS = [
   { source: 'sft', target: 'rlhf' },
   { source: 'rlhf', target: 'reasoning', dashed: true },
   { source: 'latent', target: 'rag', dashed: true },
-  { source: 'latent', target: 'quantize', dashed: true },
   { source: 'latent', target: 'diffusion', dashed: true },
   { source: 'diffusion', target: 'dit', dashed: true },
   { source: 'transformer', target: 'dit', dashed: true },
   { source: 'transformer', target: 'hybrid', dashed: true },
-  { source: 'mamba', target: 'hybrid', dashed: true }
+  { source: 'mamba', target: 'hybrid', dashed: true },
+  { source: 'transformer', target: 'quantize', dashed: true },
+  { source: 'kv_cache', target: 'quantize', dashed: true }
 ];
 
 // --- COMPONENTS ---
@@ -327,11 +328,8 @@ export default function App() {
   const chatRef = useRef<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch initial chats
+  // Scroll to active node when panel opens
   useEffect(() => {
-    chatRef.current = null;
-    setChatLog([]);
-
     if (isPanelOpen) {
       setTimeout(() => {
         const el = document.getElementById(`node-${activeNode.id}`);
@@ -340,8 +338,17 @@ export default function App() {
         }
       }, 100);
     }
+  }, [isPanelOpen, activeNode.id]);
+
+  // Fetch initial chats
+  useEffect(() => {
+    chatRef.current = null;
+    setChatLog([]);
+    setIsTyping(false);
 
     if (!user) return;
+
+    let isValid = true; // Guard to prevent race conditions during node switching
 
     const fetchChats = async () => {
       const q = query(
@@ -352,6 +359,8 @@ export default function App() {
       );
       try {
         const snapshot = await getDocs(q);
+        if (!isValid) return;
+
         const msgs = snapshot.docs.map(d => ({ role: d.data().role as 'user'|'model', text: d.data().text }));
         setChatLog(msgs);
         
@@ -372,17 +381,24 @@ export default function App() {
     };
 
     fetchChats();
-  }, [activeNode.id, user, isPanelOpen]);
+    return () => { isValid = false; };
+  }, [activeNode.id, user]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatLog]);
+
+  const activeNodeRef = useRef(activeNode.id);
+  useEffect(() => {
+    activeNodeRef.current = activeNode.id;
+  }, [activeNode.id]);
 
   const handleChatSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!inputValue.trim() || isTyping) return;
 
     const queryInput = inputValue.trim();
+    const currentNodeId = activeNode.id;
     setInputValue("");
     setChatLog(prev => [...prev, { role: 'user', text: queryInput }, { role: 'model', text: "" }]);
     setIsTyping(true);
@@ -401,6 +417,9 @@ export default function App() {
       
       let fullText = "";
       for await (const chunk of streamResponse) {
+         // Stop rendering if user switched node
+         if (activeNodeRef.current !== currentNodeId) break;
+
          if (chunk.text) {
            fullText += chunk.text;
            setChatLog(prev => {
@@ -412,17 +431,18 @@ export default function App() {
          }
       }
 
+      // Even if aborted mid-stream due to node switch, we save what was generated to Firebase
       if (user) {
          await addDoc(collection(db, 'chat_messages'), {
             userId: user.uid,
-            nodeId: activeNode.id,
+            nodeId: currentNodeId,
             role: 'user',
             text: queryInput,
             createdAt: serverTimestamp()
          });
          await addDoc(collection(db, 'chat_messages'), {
             userId: user.uid,
-            nodeId: activeNode.id,
+            nodeId: currentNodeId,
             role: 'model',
             text: fullText,
             createdAt: serverTimestamp()
@@ -430,14 +450,18 @@ export default function App() {
       }
     } catch (error: any) {
       console.error(error);
-      setChatLog(prev => {
-         if (prev.length === 0) return prev;
-         const newLog = [...prev];
-         newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: newLog[newLog.length - 1].text + `\n[ERROR: UPLINK FAILED. ${error?.message || error}]` };
-         return newLog;
-      });
+      if (activeNodeRef.current === currentNodeId) {
+        setChatLog(prev => {
+           if (prev.length === 0) return prev;
+           const newLog = [...prev];
+           newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: newLog[newLog.length - 1].text + `\n[ERROR: UPLINK FAILED. ${error?.message || error}]` };
+           return newLog;
+        });
+      }
     } finally {
-      setIsTyping(false);
+      if (activeNodeRef.current === currentNodeId) {
+        setIsTyping(false);
+      }
     }
   };
 
