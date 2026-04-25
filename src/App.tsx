@@ -614,8 +614,9 @@ export default function App() {
               const minY = Math.min(...activeNodes.map(n => n.y)) - 8;
 
               return (
-                <text key={`label-${zone.id}`} x={`${minX + 1}%`} y={`${minY + 2}%`} fill={zone.color} className="font-pixel text-[12px] opacity-80" dominantBaseline="hanging">
-                  [{zone.en}] {zone.cn}
+                <text key={`label-${zone.id}`} x={`${minX + 1}%`} y={`${minY + 2}%`} fill={zone.color} className="opacity-80">
+                  <tspan className="font-pixel text-[12px]" dominantBaseline="hanging">[{zone.en}]</tspan>
+                  <tspan className="font-sans text-[12px] font-bold tracking-widest" dx="8" dominantBaseline="hanging" dy="-2">{zone.cn}</tspan>
                 </text>
               );
             })}
