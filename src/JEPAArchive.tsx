@@ -350,7 +350,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
         {/* Reset Button */}
         <button
           onClick={() => setNodes(CONCEPTS)}
-          className="fixed bottom-8 left-8 z-50 bg-black/80 border-2 border-cyan-400 text-cyan-400 px-4 py-2 flex items-center justify-center shadow-[0_0_10px_rgba(0,255,65,0.5)] hover:bg-cyan-400 hover:text-black transition-all cursor-pointer group"
+          className="fixed bottom-8 left-8 z-50 bg-black/80 border-2 border-green-500 text-green-500 px-4 py-2 flex items-center justify-center shadow-[0_0_10px_rgba(0,255,65,0.5)] hover:bg-green-500 hover:text-black transition-all cursor-pointer group"
         >
           <span className="font-pixel text-[14px] leading-none translate-y-[2px]">[</span>
           <span className="font-sans font-bold text-[14px] leading-none tracking-widest mx-1 whitespace-nowrap">

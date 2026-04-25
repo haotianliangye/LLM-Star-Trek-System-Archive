@@ -25,7 +25,7 @@ export default function InfoModal({ onClose }: { onClose: () => void }) {
           {/* ---- LLM SECTION ---- */}
           <section>
              <div className="bg-green-500/10 border-l-4 border-green-500 px-4 py-2 mb-6">
-                <h2 className="font-pixel text-green-400 text-lg">【 一、LLM 星际航行体系 】</h2>
+                <h2 className="font-pixel text-green-400 text-lg">一、LLM 星际航行体系</h2>
                 <p className="text-gray-400 text-sm mt-1">THE LLM STAR TREK ECOSYSTEM</p>
              </div>
              
@@ -71,7 +71,7 @@ export default function InfoModal({ onClose }: { onClose: () => void }) {
           {/* ---- JEPA SECTION ---- */}
           <section>
              <div className="bg-purple-500/10 border-l-4 border-purple-500 px-4 py-2 mb-6">
-                <h2 className="font-pixel text-purple-400 text-lg">【 二、JEPA 预测体系 】</h2>
+                <h2 className="font-pixel text-purple-400 text-lg">二、JEPA 预测体系</h2>
                 <p className="text-gray-400 text-sm mt-1">THE JEPA WORLD MODEL SYSTEM</p>
              </div>
              
@@ -107,7 +107,7 @@ export default function InfoModal({ onClose }: { onClose: () => void }) {
           </section>
         </div>
         
-        <div className="flex-none pt-6 text-right font-pixel text-gray-500 text-xs sm:text-sm border-t border-cyan-500/30 mt-4">
+        <div className="flex-none pt-6 text-right font-pixel text-cyan-400 text-xs sm:text-sm border-t border-cyan-500/30 mt-4">
           —— Dev & Design: Bitoky | WeChat: bitoky
         </div>
       </div>

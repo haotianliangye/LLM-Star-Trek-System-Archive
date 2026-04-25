@@ -17,7 +17,7 @@ export default function App() {
             className="font-pixel text-[12px] text-cyan-400 border border-cyan-400 px-2 py-1 flex items-center shadow-[0_0_8px_rgba(34,211,238,0.3)] bg-black/50 cursor-pointer hover:bg-cyan-900/40 transition-colors group"
           >
             <div className="w-2 h-2 bg-green-500 group-hover:bg-[#00ff41] animate-pulse mr-2"></div>
-            <span className="group-hover:text-[#00ff41] transition-colors">SYSTEM ONLINE</span>
+            <span className="text-red-500 group-hover:text-[#00ff41] transition-colors">SYSTEM ONLINE</span>
           </div>
           
           <button
@@ -28,10 +28,9 @@ export default function App() {
               : 'bg-transparent border-gray-600 text-gray-400 hover:border-cyan-400/50 hover:text-cyan-400/80'
           }`}
         >
-          <span className="font-sans font-bold text-[14px] leading-none tracking-widest mr-2 whitespace-nowrap">
+          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap">
             LLM System
           </span>
-          <span className="font-pixel text-[10px] opacity-70">[ACTIVE]</span>
         </button>
 
         <button
@@ -42,10 +41,9 @@ export default function App() {
               : 'bg-transparent border-gray-600 text-gray-400 hover:border-purple-400/50 hover:text-purple-400/80'
           }`}
         >
-          <span className="font-sans font-bold text-[14px] leading-none tracking-widest mr-2 whitespace-nowrap">
+          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap">
             JEPA Architecture
           </span>
-          <span className="font-pixel text-[10px] opacity-70">[ACTIVE]</span>
         </button>
         </div>
       </div>
