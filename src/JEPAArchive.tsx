@@ -514,7 +514,9 @@ export default function JEPAArchive() {
 
           {/* Archive Block */}
           <div>
-            <div className="inline-block bg-cyan-400 text-black px-2 py-1 font-bold text-xs tracking-wider mb-1">ARCHIVE</div>
+            <div className="inline-block bg-cyan-400 text-black px-2 py-1 font-bold text-xs tracking-wider mb-1">
+              {language === 'zh' ? '档案' : 'ARCHIVE'}
+            </div>
             <div className="bg-[#0f172a] text-white p-2 border-l-4 border-white font-mono text-sm">
               {language === 'zh' ? activeNode.archive : activeNode.archive_en}
             </div>
@@ -522,7 +524,9 @@ export default function JEPAArchive() {
 
           {/* Metaphor Block */}
           <div>
-            <div className="inline-block bg-fuchsia-500 text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">METAPHOR</div>
+            <div className="inline-block bg-fuchsia-500 text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">
+              {language === 'zh' ? '隐喻' : 'METAPHOR'}
+            </div>
             <div className="bg-fuchsia-950/40 text-fuchsia-300 p-2 italic border-l-4 border-fuchsia-500 text-sm break-words">
               {language === 'zh' ? activeNode.metaphor : activeNode.metaphor_en}
             </div>
@@ -530,7 +534,9 @@ export default function JEPAArchive() {
 
           {/* Specs Block */}
           <div>
-            <div className="inline-block bg-[#3b82f6] text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">DETAILED_SPECS</div>
+            <div className="inline-block bg-[#3b82f6] text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">
+              {language === 'zh' ? '详细规格' : 'DETAILED_SPECS'}
+            </div>
             <div className="text-blue-400 text-sm leading-relaxed whitespace-pre-wrap break-words">
               {language === 'zh' ? activeNode.desc : activeNode.desc_en}
             </div>
@@ -546,7 +552,7 @@ export default function JEPAArchive() {
                   onClick={() => setIsConnectionsExpanded(!isConnectionsExpanded)}
                   className="inline-flex items-center gap-2 bg-[#10b981] hover:bg-[#059669] transition-colors text-black px-2 py-1 font-bold text-xs tracking-wider mb-1"
                 >
-                  CONNECTIONS 
+                  {language === 'zh' ? '面壁连接' : 'CONNECTIONS'} 
                   <span>{isConnectionsExpanded ? '▼' : '▶'}</span>
                 </button>
                 {isConnectionsExpanded && (
