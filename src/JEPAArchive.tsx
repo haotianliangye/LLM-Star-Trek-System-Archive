@@ -603,8 +603,10 @@ export default function JEPAArchive() {
               {!user ? (
                  <div className="flex-1 flex flex-col items-center justify-center p-4">
                    <div className="text-yellow-600 mb-4 text-center font-pixel text-[10px] animate-pulse">
-                     _ESTABLISHING_SECURE_LINK_<br/>
-                     <span className="text-gray-500 mt-2 block">Acquiring temporal identity...</span>
+                     {language === 'zh' ? '_建立智子加密链路_' : '_ESTABLISHING_SOPHON_SECURE_LINK_'}<br/>
+                     <span className="text-gray-500 mt-2 block">
+                       {language === 'zh' ? '正在获取临时面壁者身份...' : 'Acquiring temporary wallfacer identity...'}
+                     </span>
                    </div>
                  </div>
               ) : (
