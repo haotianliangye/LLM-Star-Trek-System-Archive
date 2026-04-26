@@ -91,6 +91,23 @@ export default function JEPAArchive() {
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
   const dragStartPos = useRef<{x: number, y: number} | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchEndX - touchStartX.current;
+    
+    // Swipe right to close
+    if (deltaX > 50) {
+      setIsPanelOpen(false);
+    }
+    touchStartX.current = null;
+  };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>, id: string) => {
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
@@ -466,7 +483,11 @@ export default function JEPAArchive() {
       </div>
 
       {/* Terminal / Detail Panel Area */}
-      <div className={`shrink-0 z-[100] bg-black transition-all duration-300 ease-in-out overflow-hidden shadow-[-20px_0_50px_rgba(0,0,0,0.8)] ${isPanelOpen ? 'w-full sm:w-[400px] border-l-4 border-cyan-400' : 'w-0 border-l-0'}`}>
+      <div 
+        className={`shrink-0 z-[100] bg-black transition-all duration-300 ease-in-out overflow-hidden shadow-[-20px_0_50px_rgba(0,0,0,0.8)] ${isPanelOpen ? 'w-full sm:w-[400px] border-l-4 border-cyan-400' : 'w-0 border-l-0'}`}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <div className="w-full sm:w-[400px] h-full flex flex-col relative bg-black">
         {/* Top Header */}
         <div className="p-4 flex items-center justify-between border-b-2 border-cyan-400 shrink-0">

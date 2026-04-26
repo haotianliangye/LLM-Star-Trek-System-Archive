@@ -16,10 +16,16 @@ export default function App() {
         <div className="flex items-center gap-4">
           <div 
             onClick={() => setShowInfoModal(true)}
-            className="h-8 font-pixel text-[12px] text-cyan-400 border border-cyan-400 px-3 flex items-center shadow-[0_0_8px_rgba(34,211,238,0.3)] bg-black/50 cursor-pointer hover:bg-cyan-900/40 transition-colors group"
+            className="h-8 font-pixel text-[12px] text-cyan-400 border border-cyan-400 px-3 flex items-center shadow-[0_0_8px_rgba(34,211,238,0.3)] bg-black/50 cursor-pointer hover:bg-cyan-900/40 transition-colors group gap-1"
           >
-            <div className="w-2 h-2 bg-green-500 group-hover:bg-[#00ff41] animate-pulse mr-2 mt-[1px]"></div>
-            <span className="text-red-500 group-hover:text-[#00ff41] transition-colors mt-[2px]">{t('SYSTEM ONLINE', 'SYSTEM ONLINE')}</span>
+            <div className="flex items-end h-4 gap-[2px] opacity-80 group-hover:opacity-100 group-hover:text-[#00ff41] transition-colors">
+              <div className="w-[3px] h-full bg-red-500 group-hover:bg-[#00ff41] animate-eq-1 transition-colors"></div>
+              <div className="w-[3px] h-full bg-red-500 group-hover:bg-[#00ff41] animate-eq-2 transition-colors"></div>
+              <div className="w-[3px] h-full bg-red-500 group-hover:bg-[#00ff41] animate-eq-3 transition-colors"></div>
+              <div className="w-[3px] h-full bg-red-500 group-hover:bg-[#00ff41] animate-eq-4 transition-colors"></div>
+              <div className="w-[3px] h-full bg-red-500 group-hover:bg-[#00ff41] animate-eq-5 transition-colors"></div>
+            </div>
+            {/* Optional: if you want the text to completely disappear, comment or remove following span */}
           </div>
           
           <button
