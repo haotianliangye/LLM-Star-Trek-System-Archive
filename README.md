@@ -1,5 +1,6 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+<img width="1920" height="911" alt="image" src="https://github.com/user-attachments/assets/0c59f50e-7963-4848-95a6-870a5cb865bb" />
+
 </div>
 
 # Run and deploy your AI Studio app
@@ -18,3 +19,4 @@ View your app in AI Studio: https://ai.studio/apps/b9382853-123d-4d75-86c1-5fabf
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+<img width="1920" height="911" alt="image" src="https://github.com/user-attachments/assets/b2176496-b081-4bb6-b344-7cdf8b2a76b5" />
