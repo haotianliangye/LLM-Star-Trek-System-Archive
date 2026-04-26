@@ -552,14 +552,14 @@ export default function LLMArchive() {
           })()}
 
           {/* Oracle Link (Chat) */}
-          <div className="flex-1 flex flex-col border-2 border-yellow-400 relative mt-4">
-            <div className="absolute -top-3.5 left-2 bg-yellow-400 text-black px-2 py-0.5 text-xs font-bold flex items-center gap-1">
+          <div className={`shrink-0 flex flex-col border-2 border-yellow-400 relative mt-4 transition-all duration-500 overflow-visible ${chatLog.length > 0 ? 'h-[80vh]' : 'min-h-[250px]'}`}>
+            <div className="absolute -top-3.5 left-2 bg-yellow-400 text-black px-2 py-0.5 text-xs font-bold flex items-center gap-1 z-10">
               {language === 'zh' ? '面壁者终端 👁️' : 'WALLFACER_TERMINAL 👁️'}
             </div>
             
-            <div className="flex-1 flex flex-col bg-black/60 pt-4 overflow-hidden min-h-[150px]">
+            <div className="flex-1 flex flex-col bg-black/60 pt-4 overflow-hidden">
               {/* Chat History */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-4 font-mono text-xs max-h-[300px]">
+              <div className="flex-1 overflow-y-auto p-3 space-y-4 font-mono text-xs">
                     {chatLog.length === 0 && (
                       <div className="text-yellow-600 animate-pulse text-center pt-8">
                         {language === 'zh' ? '正在启动面壁推演引擎...' : 'INITIALIZING WALLFACER DEDUCTION...'}
