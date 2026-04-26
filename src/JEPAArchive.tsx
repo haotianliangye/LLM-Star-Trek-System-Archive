@@ -5,11 +5,6 @@
 
 import { useLanguage } from './contexts/LanguageContext';
 import React, { useState, useEffect, useRef } from 'react';
-import { auth, db } from './firebase';
-import { signInAnonymously } from 'firebase/auth';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, where, getDocs } from 'firebase/firestore';
-import { useAuthState } from 'react-firebase-hooks/auth';
-
 
 // --- DATA DEFINITIONS ---
 
@@ -93,14 +88,6 @@ export default function JEPAArchive() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   
   
-  const [user, loading] = useAuthState(auth);
-
-  useEffect(() => {
-    if (!loading && !user) {
-      signInAnonymously(auth).catch(console.error);
-    }
-  }, [user, loading]);
-  
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
   const dragStartPos = useRef<{x: number, y: number} | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -166,32 +153,15 @@ export default function JEPAArchive() {
     setIsTyping(false);
     setIsConnectionsExpanded(false);
 
-    if (!user) return;
-
-    let isValid = true; // Guard to prevent race conditions during node switching
-
-    const fetchChats = async () => {
-      const q = query(
-        collection(db, 'chat_messages'),
-        where('userId', '==', user.uid),
-        where('nodeId', '==', activeNode.id),
-        orderBy('createdAt', 'asc')
-      );
+    const storedChats = localStorage.getItem(`chats_jepa_${activeNode.id}`);
+    if (storedChats) {
       try {
-        const snapshot = await getDocs(q);
-        if (!isValid) return;
-
-        const msgs = snapshot.docs.map(d => ({ role: d.data().role as 'user'|'model', text: d.data().text, reasoning: d.data().reasoning || "" }));
-        setChatLog(msgs);
-        
-        } catch (e) {
-        console.error("Error fetching chats", e);
+        setChatLog(JSON.parse(storedChats));
+      } catch (e) {
+        console.error("Error parsing chats", e);
       }
-    };
-
-    fetchChats();
-    return () => { isValid = false; };
-  }, [activeNode.id, user]);
+    }
+  }, [activeNode.id]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -209,7 +179,11 @@ export default function JEPAArchive() {
     const queryInput = inputValue.trim();
     const currentNodeId = activeNode.id;
     setInputValue("");
-    setChatLog(prev => [...prev, { role: 'user', text: queryInput }, { role: 'model', text: "", reasoning: "" }]);
+    setChatLog(prev => {
+      const newLog = [...prev, { role: 'user', text: queryInput }, { role: 'model', text: "", reasoning: "" }] as {role: 'user' | 'model', text: string, reasoning?: string}[];
+      localStorage.setItem(`chats_jepa_${currentNodeId}`, JSON.stringify(newLog));
+      return newLog;
+    });
     setIsTyping(true);
 
     try {
@@ -272,6 +246,7 @@ export default function JEPAArchive() {
                         if (prev.length === 0) return prev;
                         const newLog = [...prev];
                         newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: fullText, reasoning: fullReasoning };
+                        localStorage.setItem(`chats_jepa_${currentNodeId}`, JSON.stringify(newLog));
                         return newLog;
                       });
                     }
@@ -299,24 +274,7 @@ export default function JEPAArchive() {
         }
       }
 
-      // Even if aborted mid-stream due to node switch, we save what was generated to Firebase
-      if (user) {
-         await addDoc(collection(db, 'chat_messages'), {
-            userId: user.uid,
-            nodeId: currentNodeId,
-            role: 'user',
-            text: queryInput,
-            createdAt: serverTimestamp()
-         });
-         await addDoc(collection(db, 'chat_messages'), {
-            userId: user.uid,
-            nodeId: currentNodeId,
-            role: 'model',
-            text: fullText,
-            reasoning: fullReasoning,
-            createdAt: serverTimestamp()
-         });
-      }
+      // Stream complete
     } catch (error: any) {
       console.error(error);
       if (activeNodeRef.current === currentNodeId) {
@@ -324,6 +282,7 @@ export default function JEPAArchive() {
            if (prev.length === 0) return prev;
            const newLog = [...prev];
            newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: newLog[newLog.length - 1].text + `\n[ERROR: UPLINK FAILED. ${error?.message || error}]` };
+           localStorage.setItem(`chats_jepa_${currentNodeId}`, JSON.stringify(newLog));
            return newLog;
         });
       }
@@ -600,18 +559,7 @@ export default function JEPAArchive() {
             
             <div className="flex-1 flex flex-col bg-black/60 pt-4 overflow-hidden min-h-[150px]">
               {/* Chat History */}
-              {!user ? (
-                 <div className="flex-1 flex flex-col items-center justify-center p-4">
-                   <div className="text-yellow-600 mb-4 text-center font-pixel text-[10px] animate-pulse">
-                     {language === 'zh' ? '_建立智子加密链路_' : '_ESTABLISHING_SOPHON_SECURE_LINK_'}<br/>
-                     <span className="text-gray-500 mt-2 block">
-                       {language === 'zh' ? '正在获取临时面壁者身份...' : 'Acquiring temporary wallfacer identity...'}
-                     </span>
-                   </div>
-                 </div>
-              ) : (
-                <>
-                  <div className="flex-1 overflow-y-auto p-3 space-y-4 font-mono text-xs max-h-[300px]">
+              <div className="flex-1 overflow-y-auto p-3 space-y-4 font-mono text-xs max-h-[300px]">
                     {chatLog.length === 0 && (
                       <div className="text-yellow-600 animate-pulse text-center pt-8">
                         {language === 'zh' ? '正在启动面壁推演引擎...' : 'INITIALIZING WALLFACER DEDUCTION...'}
@@ -623,8 +571,8 @@ export default function JEPAArchive() {
                         <div className={`p-2 border max-w-[90%] whitespace-pre-wrap break-words ${msg.role === 'user' ? 'border-cyan-500 text-cyan-400 bg-cyan-950/30' : 'border-yellow-500 text-yellow-400 bg-yellow-950/30'}`}>
                           {msg.reasoning && (
                             <details className={`mb-2 text-xs border p-2 bg-black/40 ${msg.role === 'user' ? 'text-cyan-600 border-cyan-800/50' : 'text-yellow-600 border-yellow-700/50'}`}>
-                              <summary className="cursor-pointer font-pixel hover:opacity-100 opacity-80 flex items-center gap-2">
-                                [SYSTEM: INTERNAL DEDUCTION PROTOCOL]
+                              <summary className={`cursor-pointer hover:opacity-100 opacity-80 flex items-center gap-2 ${language === 'zh' ? 'font-bold font-sans text-xs tracking-widest' : 'font-pixel text-[10px]'} animate-pulse`}>
+                                {language === 'zh' ? '面壁协议推演中...' : 'WALLFACER PROTOCOL DEDUCING...'}
                               </summary>
                               <div className={`mt-2 pt-2 border-t whitespace-pre-wrap font-mono opacity-70 ${msg.role === 'user' ? 'border-cyan-800/50' : 'border-yellow-700/50'}`}>
                                 {msg.reasoning}
@@ -657,8 +605,6 @@ export default function JEPAArchive() {
                       RUN
                     </button>
                   </form>
-                </>
-              )}
             </div>
           </div>
           
