@@ -4,25 +4,25 @@ import { useLanguage } from '../contexts/LanguageContext';
 export default function InfoModal({ onClose }: { onClose: () => void }) {
   const { t, language, toggleLanguage } = useLanguage();
   return (
-    <div className="absolute inset-0 z-[200] flex flex-col items-center justify-start sm:justify-center p-4 bg-black/80 backdrop-blur-md overflow-hidden" onClick={onClose}>
+    <div className="absolute inset-0 z-[1000] flex flex-col items-center justify-start sm:justify-center p-4 bg-black/80 backdrop-blur-md overflow-hidden" onClick={onClose}>
       <div 
         className="max-w-4xl w-full bg-black border-2 border-cyan-500 p-6 shadow-[0_0_30px_rgba(34,211,238,0.2)] relative max-h-[90vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex-none flex items-start justify-between border-b border-cyan-500/50 pb-4 mb-4">
-          <div>
-            <div className="font-pixel text-cyan-400 text-lg md:text-xl flex items-center gap-2">
-              <span className="animate-pulse w-3 h-3 bg-cyan-400 block"></span> 
-              SYSTEM CORE ARCHIVE OVERVIEW
+        <div className="flex-none flex flex-row items-start justify-between border-b border-cyan-500/50 pb-4 mb-4 gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="font-pixel text-cyan-400 text-base sm:text-lg md:text-xl flex items-start gap-2">
+              <span className="animate-pulse w-3 h-3 bg-cyan-400 block shrink-0 mt-1"></span> 
+              <span className="leading-tight break-words">SYSTEM CORE ARCHIVE OVERVIEW</span>
             </div>
             <div className="font-pixel text-cyan-600 text-[10px] sm:text-xs mt-2 tracking-widest uppercase">
               // Version: 1.0.1 | Date: 2026.04.26
             </div>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-start sm:items-center gap-2 sm:gap-6 shrink-0">
             <button 
               onClick={toggleLanguage}
-              className="text-cyan-400 hover:text-white font-pixel text-sm sm:text-base transition-colors px-2 py-1 border border-cyan-500/50 hover:bg-cyan-900/30 shrink-0 flex items-center justify-center gap-1 leading-none"
+              className="text-cyan-400 hover:text-white font-pixel text-sm sm:text-base transition-colors px-2 py-1 border border-cyan-500/50 hover:bg-cyan-900/30 shrink-0 flex items-center justify-center gap-1 leading-none mt-1 sm:mt-0"
             >
               <span>[</span>
               <span className={language !== 'zh' ? '-translate-y-[1px]' : ''}>{language === 'zh' ? 'ENG' : '中文'}</span>
@@ -30,7 +30,7 @@ export default function InfoModal({ onClose }: { onClose: () => void }) {
             </button>
             <button 
               onClick={onClose}
-              className="text-cyan-500 hover:text-white font-pixel text-xl transition-colors shrink-0 p-2"
+              className="text-cyan-500 hover:text-white font-pixel text-xl transition-colors shrink-0 p-1 sm:p-2"
             >
               [X]
             </button>
