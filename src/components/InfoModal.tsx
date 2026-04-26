@@ -7,10 +7,15 @@ export default function InfoModal({ onClose }: { onClose: () => void }) {
         className="max-w-4xl w-full bg-black border-2 border-cyan-500 p-6 shadow-[0_0_30px_rgba(34,211,238,0.2)] relative max-h-[90vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex-none flex items-center justify-between border-b border-cyan-500/50 pb-4 mb-4">
-          <div className="font-pixel text-cyan-400 text-lg md:text-xl flex items-center gap-2">
-            <span className="animate-pulse w-3 h-3 bg-cyan-400 block"></span> 
-            SYSTEM CORE ARCHIVE OVERVIEW
+        <div className="flex-none flex items-start justify-between border-b border-cyan-500/50 pb-4 mb-4">
+          <div>
+            <div className="font-pixel text-cyan-400 text-lg md:text-xl flex items-center gap-2">
+              <span className="animate-pulse w-3 h-3 bg-cyan-400 block"></span> 
+              SYSTEM CORE ARCHIVE OVERVIEW
+            </div>
+            <div className="font-pixel text-cyan-600 text-[10px] sm:text-xs mt-2 tracking-widest uppercase">
+              // Version: 1.0.0 | Date: 2026.04.26
+            </div>
           </div>
           <button 
             onClick={onClose}

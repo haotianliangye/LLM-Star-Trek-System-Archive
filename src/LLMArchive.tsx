@@ -214,37 +214,44 @@ const ZONES = [
   { id: 'sys', cn: '系统层', en: 'SYSTEM/APP', color: '#F59E0B', nodes: ['rag', 'reasoning', 'agent'] }
 ];
 
-const LINKS = [
-  { source: 'token', target: 'embedding' },
-  { source: 'embedding', target: 'vector' },
-  { source: 'clip', target: 'vector', dashed: true },
-  { source: 'vector', target: 'latent' },
-  { source: 'latent', target: 'transformer', dashed: true },
-  { source: 'latent', target: 'mamba', dashed: true },
-  { source: 'transformer', target: 'attention' },
-  { source: 'transformer', target: 'kv_cache' },
-  { source: 'transformer', target: 'ffn' },
-  { source: 'transformer', target: 'rope' },
-  { source: 'transformer', target: 'rmsnorm' },
-  { source: 'ffn', target: 'moe', dashed: true },
-  { source: 'attention', target: 'flash_attn', dashed: true },
-  { source: 'transformer', target: 'speculative', dashed: true },
-  { source: 'transformer', target: 'lora', dashed: true },
-  { source: 'transformer', target: 'sft', dashed: true },
-  { source: 'sft', target: 'rlhf' },
-  { source: 'rlhf', target: 'reasoning', dashed: true },
-  { source: 'reasoning', target: 'agent', dashed: true },
-  { source: 'rag', target: 'agent', dashed: true },
-  { source: 'latent', target: 'rag', dashed: true },
-  { source: 'latent', target: 'diffusion', dashed: true },
-  { source: 'diffusion', target: 'dit', dashed: true },
-  { source: 'transformer', target: 'dit', dashed: true },
-  { source: 'transformer', target: 'hybrid', dashed: true },
-  { source: 'mamba', target: 'hybrid', dashed: true },
-  { source: 'transformer', target: 'quantize', dashed: true },
-  { source: 'kv_cache', target: 'quantize', dashed: true },
-  { source: 'clip', target: 'diffusion', dashed: true },
-  { source: 'rag', target: 'transformer', dashed: true }
+interface ConnectionLink {
+  source: string;
+  target: string;
+  dashed?: boolean;
+  connectionDesc?: string;
+}
+
+const LINKS: ConnectionLink[] = [
+  { source: 'token', target: 'embedding', connectionDesc: '将离散的符号（Token）映射为高维空间中的稠密向量。' },
+  { source: 'embedding', target: 'vector', connectionDesc: 'Embedding 层输出固定维度的向量（Vector）表示。' },
+  { source: 'clip', target: 'vector', dashed: true, connectionDesc: '多模态翻译官(CLIP)将图像或文本对齐到统一的向量空间中。' },
+  { source: 'vector', target: 'latent', connectionDesc: '各类向量汇聚成的抽象语义维度（Latent Space）。' },
+  { source: 'latent', target: 'transformer', dashed: true, connectionDesc: 'Latent 空间内的稠密向量序列是 Transformer 处理的初始信号源。' },
+  { source: 'latent', target: 'mamba', dashed: true, connectionDesc: '状态空间模型(Mamba)同样处理 Latent 向量，将其作为序列流动的基础。' },
+  { source: 'transformer', target: 'attention', connectionDesc: 'Transformer 的核心引擎机制，赋予模型关注序列全局的能力。' },
+  { source: 'transformer', target: 'kv_cache', connectionDesc: '为支撑 Transformer 架构在生成阶段的性能而演化出的核心工程技术。' },
+  { source: 'transformer', target: 'ffn', connectionDesc: 'Transformer 中的记忆和非线性计算节点。' },
+  { source: 'transformer', target: 'rope', connectionDesc: '为主力引擎(Transformer)提供相对位置编码的机制。' },
+  { source: 'transformer', target: 'rmsnorm', connectionDesc: '稳定 Transformer 内部能量(梯度)流动的基础组件。' },
+  { source: 'ffn', target: 'moe', dashed: true, connectionDesc: '引入稀疏激活机制(MoE)，在不增加前向计算量的情况下极大扩展 FFN 的容量。' },
+  { source: 'attention', target: 'flash_attn', dashed: true, connectionDesc: '通过显存读写优化，打破 Attention 机制长序列计算的性能瓶颈。' },
+  { source: 'transformer', target: 'speculative', dashed: true, connectionDesc: '在推演时加速 Transformer 输出速度的神级优化策略。' },
+  { source: 'transformer', target: 'lora', dashed: true, connectionDesc: '一种为极其庞大的 Transformer 核心进行高效知识侧写/微调的外部组件。' },
+  { source: 'transformer', target: 'sft', dashed: true, connectionDesc: '使原始的 Transformer 从预测下一个词进阶为遵从指令的对话形态的第一步。' },
+  { source: 'sft', target: 'rlhf', connectionDesc: '将初步指令微调(SFT)后的模型，进一步拉齐到人类真实的价值观与偏好上。' },
+  { source: 'rlhf', target: 'reasoning', dashed: true, connectionDesc: '在对齐的基础上，激发模型产生深度的逻辑推理过程（如思维链机制）。' },
+  { source: 'reasoning', target: 'agent', dashed: true, connectionDesc: '具备推理能力后，模型得以进化为能够自主规划并调用工具的 Agent（智能体）。' },
+  { source: 'rag', target: 'agent', dashed: true, connectionDesc: '知识库(RAG)作为 Agent 感知和操作外部长期记忆的重要外挂组件。' },
+  { source: 'latent', target: 'rag', dashed: true, connectionDesc: '输入问题在 Latent Space 中的向量化表示，用于在向量数据库(RAG)中进行相似度检索。' },
+  { source: 'latent', target: 'diffusion', dashed: true, connectionDesc: 'Latent 空间中的语义向量引导 Diffusion 模型进行去噪和图像生成。' },
+  { source: 'diffusion', target: 'dit', dashed: true, connectionDesc: '将 Diffusion 机制与 Transformer 强大的表征能力相结合。' },
+  { source: 'transformer', target: 'dit', dashed: true, connectionDesc: '跨界融合：将传统的视觉去噪组件(U-Net)替换为强大的序列处理引擎(Transformer)。' },
+  { source: 'transformer', target: 'hybrid', dashed: true, connectionDesc: '取长补短的究极聚合体。结合了 Transformer 和线性模型的架构演化。' },
+  { source: 'mamba', target: 'hybrid', dashed: true, connectionDesc: 'Mamba 提供流式恒定计算复杂度，与 Transformer 互补结合为混合架构。' },
+  { source: 'transformer', target: 'quantize', dashed: true, connectionDesc: '对庞大的 Transformer 模型在工程层面进行降维折叠，以塞入更小的计算核心。' },
+  { source: 'kv_cache', target: 'quantize', dashed: true, connectionDesc: '对巨大的 KV Cache 显存占用进行量化压缩，提升长文本吞吐量。' },
+  { source: 'clip', target: 'diffusion', dashed: true, connectionDesc: '利用 CLIP 提供的文本-图像对齐潜变量，精准引导 Diffusion 模型的作图方向。' },
+  { source: 'rag', target: 'transformer', dashed: true, connectionDesc: '外挂知识库：辅助 Transformer 在推演时获取超越自身参数体量的外部实时知识。' }
 ];
 
 // --- COMPONENTS ---
@@ -375,6 +382,7 @@ export default function LLMArchive({ showInfoModal, onCloseInfoModal }: { showIn
   const [chatLog, setChatLog] = useState<{role: 'user' | 'model', text: string}[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isConnectionsExpanded, setIsConnectionsExpanded] = useState(false);
   const chatRef = useRef<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -395,6 +403,7 @@ export default function LLMArchive({ showInfoModal, onCloseInfoModal }: { showIn
     chatRef.current = null;
     setChatLog([]);
     setIsTyping(false);
+    setIsConnectionsExpanded(false);
 
     if (!user) return;
 
@@ -463,22 +472,41 @@ export default function LLMArchive({ showInfoModal, onCloseInfoModal }: { showIn
           }
         });
       }
-      const streamResponse = await chatRef.current.sendMessageStream({ message: queryInput });
-      
       let fullText = "";
-      for await (const chunk of streamResponse) {
-         // Stop rendering if user switched node
-         if (activeNodeRef.current !== currentNodeId) break;
+      const delays = [1000, 2000, 4000];
+      
+      for (let attempt = 0; attempt <= 3; attempt++) {
+        try {
+          const streamResponse = await chatRef.current.sendMessageStream({ message: queryInput });
+          fullText = "";
+          for await (const chunk of streamResponse) {
+             // Stop rendering if user switched node
+             if (activeNodeRef.current !== currentNodeId) break;
 
-         if (chunk.text) {
-           fullText += chunk.text;
-           setChatLog(prev => {
-              if (prev.length === 0) return prev;
-              const newLog = [...prev];
-              newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: fullText };
-              return newLog;
-           });
-         }
+             if (chunk.text) {
+               fullText += chunk.text;
+               setChatLog(prev => {
+                  if (prev.length === 0) return prev;
+                  const newLog = [...prev];
+                  newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: fullText };
+                  return newLog;
+               });
+             }
+          }
+          break; // Success! Break out of the retry loop.
+        } catch (error: any) {
+          const isRetryable =
+            error?.status === 429 || error?.status === 503 ||
+            String(error).includes('429') || String(error).includes('503') ||
+            String(error).includes('UNAVAILABLE') || String(error).includes('high demand');
+          
+          if (isRetryable && attempt < 3) {
+            console.warn(`[Oracle retry] caught temp error, retrying in ${delays[attempt]}ms...`);
+            await new Promise(r => setTimeout(r, delays[attempt]));
+            continue;
+          }
+          throw error;
+        }
       }
 
       // Even if aborted mid-stream due to node switch, we save what was generated to Firebase
@@ -701,7 +729,7 @@ export default function LLMArchive({ showInfoModal, onCloseInfoModal }: { showIn
           </button>
         </div>
 
-        <div className="flex-1 p-4 md:p-6 flex flex-col relative overflow-y-auto space-y-6 flex-nowrap">
+        <div className="flex-1 p-4 md:p-5 flex flex-col relative overflow-y-auto space-y-4 flex-nowrap">
           
           {/* Main Title Block */}
           <div className="flex bg-yellow-400/20 p-2 border-2 border-yellow-400 items-center justify-start gap-4">
@@ -715,27 +743,63 @@ export default function LLMArchive({ showInfoModal, onCloseInfoModal }: { showIn
 
           {/* Archive Block */}
           <div>
-            <div className="inline-block bg-cyan-400 text-black px-2 py-1 font-bold text-xs tracking-wider mb-2">ARCHIVE</div>
-            <div className="bg-[#0f172a] text-white p-3 border-l-4 border-white font-mono text-sm">
+            <div className="inline-block bg-cyan-400 text-black px-2 py-1 font-bold text-xs tracking-wider mb-1">ARCHIVE</div>
+            <div className="bg-[#0f172a] text-white p-2 border-l-4 border-white font-mono text-sm">
               {activeNode.archive}
             </div>
           </div>
 
           {/* Metaphor Block */}
           <div>
-            <div className="inline-block bg-fuchsia-500 text-white px-2 py-1 font-bold text-xs tracking-wider mb-2">METAPHOR</div>
-            <div className="bg-fuchsia-950/40 text-fuchsia-300 p-3 italic border-l-4 border-fuchsia-500 text-sm break-words">
+            <div className="inline-block bg-fuchsia-500 text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">METAPHOR</div>
+            <div className="bg-fuchsia-950/40 text-fuchsia-300 p-2 italic border-l-4 border-fuchsia-500 text-sm break-words">
               {activeNode.metaphor}
             </div>
           </div>
 
           {/* Specs Block */}
           <div>
-            <div className="inline-block bg-[#3b82f6] text-white px-2 py-1 font-bold text-xs tracking-wider mb-2">DETAILED_SPECS</div>
+            <div className="inline-block bg-[#3b82f6] text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">DETAILED_SPECS</div>
             <div className="text-blue-400 text-sm leading-relaxed whitespace-pre-wrap break-words">
               {activeNode.desc}
             </div>
           </div>
+
+          {/* Related Connections Block */}
+          {(() => {
+            const relatedLinks = LINKS.filter(l => (l.source === activeNode.id || l.target === activeNode.id) && l.connectionDesc);
+            if (relatedLinks.length === 0) return null;
+            return (
+              <div>
+                <button
+                  onClick={() => setIsConnectionsExpanded(!isConnectionsExpanded)}
+                  className="inline-flex items-center gap-2 bg-[#10b981] hover:bg-[#059669] transition-colors text-black px-2 py-1 font-bold text-xs tracking-wider mb-1"
+                >
+                  CONNECTIONS 
+                  <span>{isConnectionsExpanded ? '▼' : '▶'}</span>
+                </button>
+                {isConnectionsExpanded && (
+                  <div className="bg-[#052e16] p-2 border-l-4 border-[#10b981] text-[#6ee7b7] text-sm space-y-2">
+                    {relatedLinks.map((link, i) => {
+                      const isSource = link.source === activeNode.id;
+                      const otherNodeId = isSource ? link.target : link.source;
+                      const otherNode = CONCEPTS.find(n => n.id === otherNodeId);
+                      if (!otherNode) return null;
+                      
+                      return (
+                        <div key={i} className="flex flex-col">
+                          <span className="font-bold text-[#34d399]">
+                            {isSource ? 'Out \u2794' : 'In \u2190'} [{otherNode.en}]
+                          </span>
+                          <span className="text-xs text-[#a7f3d0] mt-1">{link.connectionDesc}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Oracle Link (Chat) */}
           <div className="flex-1 flex flex-col border-2 border-yellow-400 relative mt-4">

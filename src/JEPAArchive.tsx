@@ -49,24 +49,31 @@ const ZONES = [
   { id: 'var', cn: '模型变体与愿景', en: 'VARIANTS & VISION', color: '#F59E0B', nodes: ['ijepa', 'vjepa', 'world_model'] }
 ];
 
-const LINKS = [
-  { source: 'input_video', target: 'masking' },
-  { source: 'masking', target: 'context_enc' },
-  { source: 'masking', target: 'target_enc' },
-  { source: 'masking', target: 'predictor', dashed: true },
-  { source: 'context_enc', target: 'predictor' },
-  { source: 'context_enc', target: 'ema', dashed: true },
-  { source: 'ema', target: 'target_enc', dashed: true },
-  { source: 'target_enc', target: 'latent_space' },
-  { source: 'predictor', target: 'latent_space' },
-  { source: 'latent_space', target: 'loss_func' },
-  { source: 'loss_func', target: 'predictor', dashed: true },
-  { source: 'loss_func', target: 'context_enc', dashed: true },
-  { source: 'collapse', target: 'loss_func', dashed: true },
-  { source: 'collapse', target: 'ema', dashed: true },
-  { source: 'ijepa', target: 'masking', dashed: true },
-  { source: 'vjepa', target: 'masking', dashed: true },
-  { source: 'loss_func', target: 'world_model', dashed: true }
+interface ConnectionLink {
+  source: string;
+  target: string;
+  dashed?: boolean;
+  connectionDesc?: string;
+}
+
+const LINKS: ConnectionLink[] = [
+  { source: 'input_video', target: 'masking', connectionDesc: '原始光子流/感官输入进入遮蔽策略管道，被物理拆分。' },
+  { source: 'masking', target: 'context_enc', connectionDesc: '可见的上下文部分被输入到 Context Encoder。' },
+  { source: 'masking', target: 'target_enc', connectionDesc: '被遮挡的目标部分被输入到 Target Encoder（仅提供给这部分以获取真实目标表示）。' },
+  { source: 'masking', target: 'predictor', dashed: true, connectionDesc: '遮罩位置信息的元数据被送入 Predictor，作为推演的坐标和索引。' },
+  { source: 'context_enc', target: 'predictor', connectionDesc: 'Context Encoder 提取出的上下文高维表征送入 Predictor 作为推理的依据。' },
+  { source: 'context_enc', target: 'ema', dashed: true, connectionDesc: '慢思考学习机制：使用 Context Encoder 正在训练的梯度和权重作为源动力。' },
+  { source: 'ema', target: 'target_enc', dashed: true, connectionDesc: '目标编码器的权重不由反向传播控制，而是通过 EMA 从 Context Encoder 缓慢同步过来，防止模型坍缩。' },
+  { source: 'target_enc', target: 'latent_space', connectionDesc: 'Target Encoder 将目标区域转化为高维的 Latent 表示。' },
+  { source: 'predictor', target: 'latent_space', connectionDesc: 'Predictor 在抽象维度中，推演出目标区域可能对应的 Latent 表示。' },
+  { source: 'latent_space', target: 'loss_func', connectionDesc: '预测器推演出的潜空间目标表征，与目标编码器提取出的真实潜空间目标表征，在这里计算距离差异。' },
+  { source: 'loss_func', target: 'predictor', dashed: true, connectionDesc: '误差回传，主要用于更新 predictor 的推演能力。' },
+  { source: 'loss_func', target: 'context_enc', dashed: true, connectionDesc: '误差回传，同样用于更新 context encoder 提取关键信息的质量。' },
+  { source: 'collapse', target: 'loss_func', dashed: true, connectionDesc: 'Loss 如果收敛到 0，不仅代表预测准确，也可能陷入 Representation Collapse 的坍缩状态。' },
+  { source: 'collapse', target: 'ema', dashed: true, connectionDesc: 'EMA更新机制是抵抗自监督学习中模型发生表示坍缩（Representation Collapse）的核心武器。' },
+  { source: 'ijepa', target: 'masking', dashed: true, connectionDesc: 'I-JEPA 在单帧图像上实现了块状遮蔽机制。' },
+  { source: 'vjepa', target: 'masking', dashed: true, connectionDesc: 'V-JEPA 将遮蔽机制扩展至时空维度（如遮除视频中的多帧局部）。' },
+  { source: 'loss_func', target: 'world_model', dashed: true, connectionDesc: '这种基于抽象空间预测的 Loss，驱使网络学会了物理法则，从而向宏大的 World Model 愿景迈进。' }
 ];
 
 // --- COMPONENTS ---
@@ -197,6 +204,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
   const [chatLog, setChatLog] = useState<{role: 'user' | 'model', text: string}[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [isConnectionsExpanded, setIsConnectionsExpanded] = useState(false);
   const chatRef = useRef<any>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -217,6 +225,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
     chatRef.current = null;
     setChatLog([]);
     setIsTyping(false);
+    setIsConnectionsExpanded(false);
 
     if (!user) return;
 
@@ -285,22 +294,41 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
           }
         });
       }
-      const streamResponse = await chatRef.current.sendMessageStream({ message: queryInput });
-      
       let fullText = "";
-      for await (const chunk of streamResponse) {
-         // Stop rendering if user switched node
-         if (activeNodeRef.current !== currentNodeId) break;
+      const delays = [1000, 2000, 4000];
+      
+      for (let attempt = 0; attempt <= 3; attempt++) {
+        try {
+          const streamResponse = await chatRef.current.sendMessageStream({ message: queryInput });
+          fullText = "";
+          for await (const chunk of streamResponse) {
+             // Stop rendering if user switched node
+             if (activeNodeRef.current !== currentNodeId) break;
 
-         if (chunk.text) {
-           fullText += chunk.text;
-           setChatLog(prev => {
-              if (prev.length === 0) return prev;
-              const newLog = [...prev];
-              newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: fullText };
-              return newLog;
-           });
-         }
+             if (chunk.text) {
+               fullText += chunk.text;
+               setChatLog(prev => {
+                  if (prev.length === 0) return prev;
+                  const newLog = [...prev];
+                  newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: fullText };
+                  return newLog;
+               });
+             }
+          }
+          break; // Success! Break out of the retry loop.
+        } catch (error: any) {
+          const isRetryable =
+            error?.status === 429 || error?.status === 503 ||
+            String(error).includes('429') || String(error).includes('503') ||
+            String(error).includes('UNAVAILABLE') || String(error).includes('high demand');
+          
+          if (isRetryable && attempt < 3) {
+            console.warn(`[Oracle retry] caught temp error, retrying in ${delays[attempt]}ms...`);
+            await new Promise(r => setTimeout(r, delays[attempt]));
+            continue;
+          }
+          throw error;
+        }
       }
 
       // Even if aborted mid-stream due to node switch, we save what was generated to Firebase
@@ -523,7 +551,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
           </button>
         </div>
 
-        <div className="flex-1 p-4 md:p-6 flex flex-col relative overflow-y-auto space-y-6 flex-nowrap">
+        <div className="flex-1 p-4 md:p-5 flex flex-col relative overflow-y-auto space-y-4 flex-nowrap">
           
           {/* Main Title Block */}
           <div className="flex bg-yellow-400/20 p-2 border-2 border-yellow-400 items-center justify-start gap-4">
@@ -537,27 +565,63 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
 
           {/* Archive Block */}
           <div>
-            <div className="inline-block bg-cyan-400 text-black px-2 py-1 font-bold text-xs tracking-wider mb-2">ARCHIVE</div>
-            <div className="bg-[#0f172a] text-white p-3 border-l-4 border-white font-mono text-sm">
+            <div className="inline-block bg-cyan-400 text-black px-2 py-1 font-bold text-xs tracking-wider mb-1">ARCHIVE</div>
+            <div className="bg-[#0f172a] text-white p-2 border-l-4 border-white font-mono text-sm">
               {activeNode.archive}
             </div>
           </div>
 
           {/* Metaphor Block */}
           <div>
-            <div className="inline-block bg-fuchsia-500 text-white px-2 py-1 font-bold text-xs tracking-wider mb-2">METAPHOR</div>
-            <div className="bg-fuchsia-950/40 text-fuchsia-300 p-3 italic border-l-4 border-fuchsia-500 text-sm break-words">
+            <div className="inline-block bg-fuchsia-500 text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">METAPHOR</div>
+            <div className="bg-fuchsia-950/40 text-fuchsia-300 p-2 italic border-l-4 border-fuchsia-500 text-sm break-words">
               {activeNode.metaphor}
             </div>
           </div>
 
           {/* Specs Block */}
           <div>
-            <div className="inline-block bg-[#3b82f6] text-white px-2 py-1 font-bold text-xs tracking-wider mb-2">DETAILED_SPECS</div>
+            <div className="inline-block bg-[#3b82f6] text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">DETAILED_SPECS</div>
             <div className="text-blue-400 text-sm leading-relaxed whitespace-pre-wrap break-words">
               {activeNode.desc}
             </div>
           </div>
+
+          {/* Related Connections Block */}
+          {(() => {
+            const relatedLinks = LINKS.filter(l => (l.source === activeNode.id || l.target === activeNode.id) && l.connectionDesc);
+            if (relatedLinks.length === 0) return null;
+            return (
+              <div>
+                <button
+                  onClick={() => setIsConnectionsExpanded(!isConnectionsExpanded)}
+                  className="inline-flex items-center gap-2 bg-[#10b981] hover:bg-[#059669] transition-colors text-black px-2 py-1 font-bold text-xs tracking-wider mb-1"
+                >
+                  CONNECTIONS 
+                  <span>{isConnectionsExpanded ? '▼' : '▶'}</span>
+                </button>
+                {isConnectionsExpanded && (
+                  <div className="bg-[#052e16] p-2 border-l-4 border-[#10b981] text-[#6ee7b7] text-sm space-y-2">
+                    {relatedLinks.map((link, i) => {
+                      const isSource = link.source === activeNode.id;
+                      const otherNodeId = isSource ? link.target : link.source;
+                      const otherNode = CONCEPTS.find(n => n.id === otherNodeId);
+                      if (!otherNode) return null;
+                      
+                      return (
+                        <div key={i} className="flex flex-col">
+                          <span className="font-bold text-[#34d399]">
+                            {isSource ? 'Out \u2794' : 'In \u2190'} [{otherNode.en}]
+                          </span>
+                          <span className="text-xs text-[#a7f3d0] mt-1">{link.connectionDesc}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Oracle Link (Chat) */}
           <div className="flex-1 flex flex-col border-2 border-yellow-400 relative mt-4">
