@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import LLMArchive from './LLMArchive';
 import JEPAArchive from './JEPAArchive';
 import InfoModal from './components/InfoModal';
+import { useLanguage } from './contexts/LanguageContext';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'llm' | 'jepa'>('llm');
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const { language, toggleLanguage, t } = useLanguage();
 
   return (
     <div className="h-screen w-screen relative bg-[#0c001a] overflow-hidden flex flex-col font-mono text-[#00ff41]">
@@ -17,9 +19,18 @@ export default function App() {
             className="font-pixel text-[12px] text-cyan-400 border border-cyan-400 px-2 py-1 flex items-center shadow-[0_0_8px_rgba(34,211,238,0.3)] bg-black/50 cursor-pointer hover:bg-cyan-900/40 transition-colors group"
           >
             <div className="w-2 h-2 bg-green-500 group-hover:bg-[#00ff41] animate-pulse mr-2"></div>
-            <span className="text-red-500 group-hover:text-[#00ff41] transition-colors">SYSTEM ONLINE</span>
+            <span className="text-red-500 group-hover:text-[#00ff41] transition-colors">{t('SYSTEM ONLINE', 'SYSTEM ONLINE')}</span>
           </div>
           
+          <button
+            onClick={toggleLanguage}
+            className="font-pixel text-[12px] text-yellow-400 border border-yellow-400 px-2 py-1 flex items-center justify-center gap-1 shadow-[0_0_8px_rgba(250,204,21,0.3)] bg-black/50 cursor-pointer hover:bg-yellow-900/40 transition-colors leading-none"
+          >
+            <span>[</span>
+            <span className={language !== 'zh' ? '-translate-y-[1px]' : ''}>{language === 'zh' ? 'EN' : '中'}</span>
+            <span>]</span>
+          </button>
+
           <button
           onClick={() => setActiveTab('llm')}
           className={`flex items-center px-4 py-1.5 border transition-all ${

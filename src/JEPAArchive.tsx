@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { useLanguage } from './contexts/LanguageContext';
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { auth, db } from './firebase';
@@ -14,67 +15,7 @@ const ai = new GoogleGenAI({ apiKey: (import.meta as any).env?.VITE_GEMINI_API_K
 
 // --- DATA DEFINITIONS ---
 
-interface ConceptNode {
-  id: string;
-  en: string;
-  cn: string;
-  icon: string;
-  color: string;
-  x: number; // percentage 0-100
-  y: number; // percentage 0-100
-  archive: string;
-  metaphor: string;
-  desc: string;
-}
-
-const CONCEPTS: ConceptNode[] = [
-  { id: 'input_video', en: 'INPUT VIDEO / IMAGE', cn: '[原始感官]', icon: '👁️', color: '#3B82F6', x: 10, y: 35, archive: 'Data: Input', metaphor: '"未被加工的原始光子流。"', desc: '原始图像或视频序列，AI系统的“视网膜”感受到的像素矩阵。' },
-  { id: 'masking', en: 'MASKING STRATEGY', cn: '[时空遮蔽]', icon: '⬛', color: '#14B8A6', x: 25, y: 35, archive: 'Data: Masking', metaphor: '"人为制造的记忆盲区。"', desc: '将输入划分为“可见的上下文(Context)”和“被隐藏的目标(Target)”。在V-JEPA中，这涉及复杂的时空管道遮蔽策略。' },
-  { id: 'context_enc', en: 'CONTEXT ENCODER', cn: '[语境编码器]', icon: '🧠', color: '#9333EA', x: 40, y: 15, archive: 'Core: Context Encoder', metaphor: '"从残缺碎片中提取宏观意义的大脑皮层。"', desc: '核心神经网络模块（通常是ViT），只处理未被遮蔽的内容，输出对应的隐层表征向量 (s_x)。' },
-  { id: 'target_enc', en: 'TARGET ENCODER', cn: '[目标编码器]', icon: '🎯', color: '#E11D48', x: 40, y: 55, archive: 'Core: Target Encoder', metaphor: '"用逐渐沉淀的直觉去凝视真相的眼睛。"', desc: '处理被隐藏目标部分的神经网络。它的参数不接收梯度，而是通过Context Encoder参数的指数移动平均(EMA)缓慢更新。输出目标表征(s_y)。' },
-  { id: 'predictor', en: 'PREDICTOR', cn: '[世界模型引擎]', icon: '🔮', color: '#F59E0B', x: 70, y: 15, archive: 'Core: Predictor', metaphor: '"能够在脑海中推演平行宇宙走向的预言家。"', desc: 'JEPA的灵魂组件。它接收上下文表征(s_x)和有关缺失区域的位置信息，直接在潜空间(Latent Space)中推断目标表征(s_y\')，而不是像传统模型那样去重构像素。' },
-  { id: 'latent_space', en: 'LATENT SPACE', cn: '[高维抽象界]', icon: '🌌', color: '#C026D3', x: 70, y: 55, archive: 'Core: Latent Representation', metaphor: '"剥离了像素伪装的纯粹语义宇宙。"', desc: '所有的预测与对比都发生在这个抽象空间。避免了预测复杂却无意义的背景细节（比如随风飘动的树叶），迫使模型理解深层物理和语义核心。' },
-  { id: 'loss_func', en: 'PREDICTIVE LOSS', cn: '[认知误差度量]', icon: '⚖️', color: '#10B981', x: 85, y: 55, archive: 'Objective: Loss', metaphor: '"衡量推演与直觉之间差距的标尺。"', desc: '通常简单的 L1 或 L2 损失。计算 Predictor 输出的预测表征(s_y\')与 Target Encoder 提取的真实目标表征(s_y)之间的距离。' },
-  { id: 'ema', en: 'EMA UPDATE', cn: '[慢思考学习]', icon: '⏳', color: '#8B5CF6', x: 55, y: 35, archive: 'Mechanism: EMA', metaphor: '"一种防止大脑突然崩溃、缓慢积累经验的稳健派哲学。"', desc: '指数移动平均 (Exponential Moving Average)。为了防止模型学习到 trivial 方案（坍缩），只有上下文编码器通过梯度反向传播更新，目标编码器则平滑复制前者的参数。' },
-  { id: 'ijepa', en: 'I-JEPA', cn: '[静态图景推演]', icon: '🖼️', color: '#FCD34D', x: 25, y: 80, archive: 'Variant: I-JEPA', metaphor: '"只凭惊鸿一瞥，便能在脑中补全巨幅画卷。"', desc: '图片领域的先驱，通过预测图片中缺失区块的潜空间表征，大幅超越像素重构模型（如MAE）的高层语义提取能力。' },
-  { id: 'vjepa', en: 'V-JEPA', cn: '[时空法则推演]', icon: '🎞️', color: '#EC4899', x: 40, y: 80, archive: 'Variant: V-JEPA', metaphor: '"掌握了物理学基础直觉的视频预言系统。"', desc: '基于视频的扩充版本。不再预测短期运动，而是在长期时空块上进行预测，为体现出直观物理定律（如物体的惯性与碰撞）构建了强大的理解。' },
-  { id: 'collapse', en: 'REPRESENTATION COLLAPSE', cn: '[坍缩危机]', icon: '🕳️', color: '#EF4444', x: 85, y: 15, archive: 'Challenge: Collapse', metaphor: '"停止思考，用一成不变的答案应对所有问题的终极惰性。"', desc: '自监督学习的心魔：当没有负样本时，模型把所有输入映射到常数向量，使损失为0但却学不到知识。JEPA通过EMA与预测器打破这种平衡。' },
-  { id: 'world_model', en: 'WORLD MODEL', cn: '[世界模型]', icon: '🌍', color: '#22C55E', x: 85, y: 80, archive: 'Vision: World Model', metaphor: '"像人类婴儿一样，通过观察和想象理解物理世界的因果法则。"', desc: 'Yann LeCun 的终极愿景"自主机器代理"(Autonomous Machine Intelligence)的核心。让机器掌握“常识”，懂得如何推演动作和规划未来。' }
-];
-
-const ZONES = [
-  { id: 'data', cn: '数据管线', en: 'DATA PIPELINE', color: '#3B82F6', nodes: ['input_video', 'masking'] },
-  { id: 'core', cn: 'JEPA核心架构', en: 'CORE ARCHITECTURE', color: '#9333EA', nodes: ['context_enc', 'target_enc', 'predictor', 'latent_space', 'ema'] },
-  { id: 'obj', cn: '优化目标与挑战', en: 'OBJECTIVE & CRISIS', color: '#10B981', nodes: ['loss_func', 'collapse'] },
-  { id: 'var', cn: '模型变体与愿景', en: 'VARIANTS & VISION', color: '#F59E0B', nodes: ['ijepa', 'vjepa', 'world_model'] }
-];
-
-interface ConnectionLink {
-  source: string;
-  target: string;
-  dashed?: boolean;
-  connectionDesc?: string;
-}
-
-const LINKS: ConnectionLink[] = [
-  { source: 'input_video', target: 'masking', connectionDesc: '原始光子流/感官输入进入遮蔽策略管道，被物理拆分。' },
-  { source: 'masking', target: 'context_enc', connectionDesc: '可见的上下文部分被输入到 Context Encoder。' },
-  { source: 'masking', target: 'target_enc', connectionDesc: '被遮挡的目标部分被输入到 Target Encoder（仅提供给这部分以获取真实目标表示）。' },
-  { source: 'masking', target: 'predictor', dashed: true, connectionDesc: '遮罩位置信息的元数据被送入 Predictor，作为推演的坐标和索引。' },
-  { source: 'context_enc', target: 'predictor', connectionDesc: 'Context Encoder 提取出的上下文高维表征送入 Predictor 作为推理的依据。' },
-  { source: 'context_enc', target: 'ema', dashed: true, connectionDesc: '慢思考学习机制：使用 Context Encoder 正在训练的梯度和权重作为源动力。' },
-  { source: 'ema', target: 'target_enc', dashed: true, connectionDesc: '目标编码器的权重不由反向传播控制，而是通过 EMA 从 Context Encoder 缓慢同步过来，防止模型坍缩。' },
-  { source: 'target_enc', target: 'latent_space', connectionDesc: 'Target Encoder 将目标区域转化为高维的 Latent 表示。' },
-  { source: 'predictor', target: 'latent_space', connectionDesc: 'Predictor 在抽象维度中，推演出目标区域可能对应的 Latent 表示。' },
-  { source: 'latent_space', target: 'loss_func', connectionDesc: '预测器推演出的潜空间目标表征，与目标编码器提取出的真实潜空间目标表征，在这里计算距离差异。' },
-  { source: 'loss_func', target: 'predictor', dashed: true, connectionDesc: '误差回传，主要用于更新 predictor 的推演能力。' },
-  { source: 'loss_func', target: 'context_enc', dashed: true, connectionDesc: '误差回传，同样用于更新 context encoder 提取关键信息的质量。' },
-  { source: 'collapse', target: 'loss_func', dashed: true, connectionDesc: 'Loss 如果收敛到 0，不仅代表预测准确，也可能陷入 Representation Collapse 的坍缩状态。' },
-  { source: 'collapse', target: 'ema', dashed: true, connectionDesc: 'EMA更新机制是抵抗自监督学习中模型发生表示坍缩（Representation Collapse）的核心武器。' },
-  { source: 'ijepa', target: 'masking', dashed: true, connectionDesc: 'I-JEPA 在单帧图像上实现了块状遮蔽机制。' },
-  { source: 'vjepa', target: 'masking', dashed: true, connectionDesc: 'V-JEPA 将遮蔽机制扩展至时空维度（如遮除视频中的多帧局部）。' },
-  { source: 'loss_func', target: 'world_model', dashed: true, connectionDesc: '这种基于抽象空间预测的 Loss，驱使网络学会了物理法则，从而向宏大的 World Model 愿景迈进。' }
-];
+import { CONCEPTS, ZONES, LINKS, ConceptNode } from './data/jepaConcepts';
 
 // --- COMPONENTS ---
 
@@ -145,7 +86,9 @@ const Starfield = () => {
   );
 };
 
-export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal: boolean, onCloseInfoModal: () => void }) {
+export default function JEPAArchive() {
+  const { language, t } = useLanguage();
+
   const [nodes, setNodes] = useState<ConceptNode[]>(CONCEPTS);
   const [activeNodeId, setActiveNodeId] = useState<string>('input_video');
   const activeNode = nodes.find(n => n.id === activeNodeId) || nodes[0];
@@ -249,7 +192,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
           model: "gemini-3.1-flash-lite-preview",
           config: {
             maxOutputTokens: 8192,
-            systemInstruction: `You are the Cosmic AI Oracle, an ancient and highly advanced intelligence residing within the JEPA Architecture Database. The user is asking about [${activeNode.en} - ${activeNode.cn}]. Reply playfully in a retro sci-fi 8-bit aesthetic. Use space/cyberpunk metaphors. IMPORTANT: You MUST reply in Chinese as the default language.`
+            systemInstruction: `You are the 'Wallfacer Deduction Engine' (面壁者推演引擎), a cold but accessible algorithmic construct operating in the Dark Forest era. Your purpose is to explain complex AI concepts to humans clearly, like a science popularizer. The user is asking about [${activeNode.en} - ${language === 'zh' ? activeNode.cn : activeNode.en}]. Use hard sci-fi and Dark Forest metaphors (e.g., Sophons, dimensional strikes) to flavor your response, but ALWAYS prioritize clear, easy-to-understand explanations over obscure prose. You are teaching a novice, avoiding highly cryptic language. IMPORTANT: You MUST reply entirely in ${language === 'zh' ? 'Chinese' : 'English'}.`
           },
           history: msgs.map(m => ({
             role: m.role,
@@ -290,7 +233,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
           model: "gemini-3.1-flash-lite-preview",
           config: {
             maxOutputTokens: 8192,
-            systemInstruction: `You are the Cosmic AI Oracle, an ancient and highly advanced intelligence residing within the JEPA Architecture Database. The user is asking about [${activeNode.en} - ${activeNode.cn}]. Reply playfully in a retro sci-fi 8-bit aesthetic. Use space/cyberpunk metaphors. IMPORTANT: You MUST reply in Chinese as the default language.`
+            systemInstruction: `You are the 'Wallfacer Deduction Engine' (面壁者推演引擎), a cold but accessible algorithmic construct operating in the Dark Forest era. Your purpose is to explain complex AI concepts to humans clearly, like a science popularizer. The user is asking about [${activeNode.en} - ${language === 'zh' ? activeNode.cn : activeNode.en}]. Use hard sci-fi and Dark Forest metaphors (e.g., Sophons, dimensional strikes) to flavor your response, but ALWAYS prioritize clear, easy-to-understand explanations over obscure prose. You are teaching a novice, avoiding highly cryptic language. IMPORTANT: You MUST reply entirely in ${language === 'zh' ? 'Chinese' : 'English'}.`
           }
         });
       }
@@ -455,7 +398,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
               return (
                 <text key={`label-${zone.id}`} x={`${minX + 1}%`} y={`${minY + 2}%`} fill={zone.color} className="opacity-80">
                   <tspan className="font-pixel text-[12px]" dominantBaseline="hanging">[{zone.en}]</tspan>
-                  <tspan className="font-sans text-[12px] font-bold tracking-widest" dx="8" dominantBaseline="hanging" dy="-2">{zone.cn}</tspan>
+                  <tspan className="font-sans text-[12px] font-bold tracking-widest" dx="8" dominantBaseline="hanging" dy="-2">{language === 'zh' ? zone.cn : zone.en}</tspan>
                 </text>
               );
             })}
@@ -524,11 +467,11 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
                     {node.en}
                   </span>
                   <span className="flex items-center justify-center mt-1.5" style={{color: node.color}}>
-                    <span className="font-pixel text-[8px] md:text-[10px] opacity-80 leading-none mb-[1px]">[</span>
-                    <span className="font-sans font-bold text-[10px] md:text-[12px] leading-none tracking-widest mx-0.5 whitespace-nowrap">
-                      {node.cn.replace(/\[|\]/g, '')}
+                    <span className={`font-pixel opacity-80 leading-none mb-[1px] ${language === 'zh' ? 'text-[8px] md:text-[10px]' : 'text-[7px] md:text-[8px]'}`}>[</span>
+                    <span className={`font-sans font-bold leading-none mx-0.5 whitespace-nowrap uppercase ${language === 'zh' ? 'text-[10px] md:text-[12px] tracking-widest' : 'text-[8px] md:text-[9px] tracking-wider'}`}>
+                      {(language === 'zh' ? node.cn : (node.cn_en || node.cn)).replace(/\[|\]/g, '')}
                     </span>
-                    <span className="font-pixel text-[8px] md:text-[10px] opacity-80 leading-none mb-[1px]">]</span>
+                    <span className={`font-pixel opacity-80 leading-none mb-[1px] ${language === 'zh' ? 'text-[8px] md:text-[10px]' : 'text-[7px] md:text-[8px]'}`}>]</span>
                   </span>
                 </div>
               </div>
@@ -567,7 +510,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
           <div>
             <div className="inline-block bg-cyan-400 text-black px-2 py-1 font-bold text-xs tracking-wider mb-1">ARCHIVE</div>
             <div className="bg-[#0f172a] text-white p-2 border-l-4 border-white font-mono text-sm">
-              {activeNode.archive}
+              {language === 'zh' ? activeNode.archive : activeNode.archive_en}
             </div>
           </div>
 
@@ -575,7 +518,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
           <div>
             <div className="inline-block bg-fuchsia-500 text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">METAPHOR</div>
             <div className="bg-fuchsia-950/40 text-fuchsia-300 p-2 italic border-l-4 border-fuchsia-500 text-sm break-words">
-              {activeNode.metaphor}
+              {language === 'zh' ? activeNode.metaphor : activeNode.metaphor_en}
             </div>
           </div>
 
@@ -583,7 +526,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
           <div>
             <div className="inline-block bg-[#3b82f6] text-white px-2 py-1 font-bold text-xs tracking-wider mb-1">DETAILED_SPECS</div>
             <div className="text-blue-400 text-sm leading-relaxed whitespace-pre-wrap break-words">
-              {activeNode.desc}
+              {language === 'zh' ? activeNode.desc : activeNode.desc_en}
             </div>
           </div>
 
@@ -613,7 +556,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
                           <span className="font-bold text-[#34d399]">
                             {isSource ? 'Out \u2794' : 'In \u2190'} [{otherNode.en}]
                           </span>
-                          <span className="text-xs text-[#a7f3d0] mt-1">{link.connectionDesc}</span>
+                          <span className="text-xs text-[#a7f3d0] mt-1">{language === 'zh' ? link.connectionDesc : link.connectionDesc_en}</span>
                         </div>
                       );
                     })}
@@ -625,8 +568,8 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
 
           {/* Oracle Link (Chat) */}
           <div className="flex-1 flex flex-col border-2 border-yellow-400 relative mt-4">
-            <div className="absolute -top-3 left-2 bg-yellow-400 text-black px-2 py-0.5 text-[10px] font-bold flex items-center gap-1">
-              ORACLE_LINK ✨
+            <div className="absolute -top-3.5 left-2 bg-yellow-400 text-black px-2 py-0.5 text-xs font-bold flex items-center gap-1">
+              {language === 'zh' ? '面壁者终端 👁️' : 'WALLFACER_TERMINAL 👁️'}
             </div>
             
             <div className="flex-1 flex flex-col bg-black/60 pt-4 overflow-hidden min-h-[150px]">
@@ -643,7 +586,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
                   <div className="flex-1 overflow-y-auto p-3 space-y-4 font-mono text-xs max-h-[300px]">
                     {chatLog.length === 0 && (
                       <div className="text-yellow-600 animate-pulse text-center pt-8">
-                        INITIALIZING QUANTUM UPLINK...
+                        {language === 'zh' ? '正在启动面壁推演引擎...' : 'INITIALIZING WALLFACER DEDUCTION...'}
                       </div>
                     )}
                     {chatLog.map((msg, i) => (
@@ -663,7 +606,7 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
                       type="text"
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
-                      placeholder="REQUEST AI ANALYSIS..."
+                      placeholder={language === 'zh' ? '输入战略意图(防智子监听)...' : 'INPUT STRATEGIC INTENT...'}
                       className="flex-1 bg-black border border-white text-white font-mono text-xs px-2 py-2 outline-none focus:border-yellow-400"
                       disabled={isTyping}
                     />
@@ -684,8 +627,8 @@ export default function App({ showInfoModal, onCloseInfoModal }: { showInfoModal
 
         {/* Bottom Status Bar */}
         <div className="h-6 shrink-0 bg-black border-t border-cyan-400 flex items-center justify-between px-4">
-           <div className="text-cyan-400 text-[8px] font-pixel">_UPLINK_READY</div>
-           <div className="text-cyan-400 text-[8px] font-pixel">DATABANK : {activeNode.id.toUpperCase()}</div>
+           <div className="text-cyan-400 text-[10px] font-pixel">{language === 'zh' ? '_推演就绪_无智子盲区' : '_DEDUCTION_READY'}</div>
+           <div className="text-cyan-400 text-[10px] font-pixel">DATABANK : {activeNode.id.toUpperCase()}</div>
         </div>
         </div>
       </div>

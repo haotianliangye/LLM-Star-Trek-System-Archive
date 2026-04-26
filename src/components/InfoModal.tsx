@@ -1,6 +1,8 @@
 import React from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function InfoModal({ onClose }: { onClose: () => void }) {
+  const { t, language, toggleLanguage } = useLanguage();
   return (
     <div className="absolute inset-0 z-[200] flex flex-col items-center justify-start sm:justify-center p-4 bg-black/80 backdrop-blur-md overflow-hidden" onClick={onClose}>
       <div 
@@ -14,15 +16,25 @@ export default function InfoModal({ onClose }: { onClose: () => void }) {
               SYSTEM CORE ARCHIVE OVERVIEW
             </div>
             <div className="font-pixel text-cyan-600 text-[10px] sm:text-xs mt-2 tracking-widest uppercase">
-              // Version: 1.0.0 | Date: 2026.04.26
+              // Version: 1.0.1 | Date: 2026.04.26
             </div>
           </div>
-          <button 
-            onClick={onClose}
-            className="text-cyan-500 hover:text-white font-pixel text-xl transition-colors shrink-0 p-2"
-          >
-            [X]
-          </button>
+          <div className="flex items-center gap-6">
+            <button 
+              onClick={toggleLanguage}
+              className="text-cyan-400 hover:text-white font-pixel text-sm sm:text-base transition-colors px-2 py-1 border border-cyan-500/50 hover:bg-cyan-900/30 shrink-0 flex items-center justify-center gap-1 leading-none"
+            >
+              <span>[</span>
+              <span className={language !== 'zh' ? '-translate-y-[1px]' : ''}>{language === 'zh' ? 'ENG' : '中文'}</span>
+              <span>]</span>
+            </button>
+            <button 
+              onClick={onClose}
+              className="text-cyan-500 hover:text-white font-pixel text-xl transition-colors shrink-0 p-2"
+            >
+              [X]
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-12 text-gray-300 font-sans text-sm md:text-base leading-relaxed">
@@ -30,43 +42,31 @@ export default function InfoModal({ onClose }: { onClose: () => void }) {
           {/* ---- LLM SECTION ---- */}
           <section>
              <div className="bg-green-500/10 border-l-4 border-green-500 px-4 py-2 mb-6">
-                <h2 className="font-pixel text-green-400 text-lg">一、LLM 星际航行体系</h2>
-                <p className="text-gray-400 text-sm mt-1">THE LLM STAR TREK ECOSYSTEM</p>
+                <h2 className="font-pixel text-green-400 text-lg">{t("面壁计划：AI 模型档案馆", "WALLFACER PROJECT: AI MODEL ARCHIVE")}</h2>
+                <p className="text-gray-400 text-sm mt-1">{t("黑暗森林中的智能演化", "Intelligence Evolution in the Dark Forest")}</p>
              </div>
              
               <div className="space-y-6">
                 <div>
-                    <h3 className="font-pixel text-green-400 mb-2">:: 设定 & 核心作用</h3>
+                    <h3 className="font-pixel text-green-400 mb-2">{t(":: 定向映射规律", ":: Directed Mapping Rules")}</h3>
                     <p className="mb-2">
-                      本项目是一个具象化、可交互的大语言模型（LLM）核心概念拓扑图。将晦涩难懂的 AI 底层机器架构隐喻为一场浩瀚的“星际航行”。在此，数据是星辰，算法是航线，模型是星际文明。作用在于通过概念可视化和脉络梳理，揭示技术递进与融合。探索者可自由拖拽推演，沉浸式了解技术的“航行日志”与“现实隐喻”。
+                      {t("本档案揭示了 LLM 的演化法则：这是宇宙坐标的坍缩与文明对齐的隐秘历史。Token 是虚无的引力座标，Transformer 是文明广播的神经塔，对齐技术是对抗疯狂的思想钢印。", "This archive reveals the evolutionary laws of LLMs: a hidden history of cosmic coordinate collapse and civilization alignment. Tokens are void gravity coordinates; Transformer is the neural broadcasting tower; Alignment tech is the Mental Seal fighting madness.")}
                     </p>
                 </div>
                 <div>
-                  <h3 className="font-pixel text-green-400 mb-2">:: 星图导航：引擎与演化解析</h3>
+                  <h3 className="font-pixel text-green-400 mb-2">{t(":: 引擎核心演化", ":: Core Engine Deducing")}</h3>
                   <div className="space-y-4">
                     <div>
-                      <strong className="text-cyan-400 block mb-1">物质起源（数据与映射）</strong>
-                      <p>一切智能始于 Token [符号碎片]，它们在被赋予能量前只是虚无的编号。经由 Embedding [传送门] 唤醒，碎片被转化为机器能理解的 Vector [原子]，并投射到浩渺的 Latent Space [宇宙容器] 中。同时，CLIP [翻译官] 正打破维度壁垒，让图像与文本在同一个坐标系下共舞。</p>
+                      <strong className="text-cyan-400 block mb-1">{t("物质提纯：Token与高维展开", "Matter Refinement: Token & Dimensional Unfolding")}</strong>
+                      <p>{t("原始指令由 Embedding 投射升维，进入 Latent Space 高维碎片界，使信息突破三维限制。", "Raw instructions are elevated by Embedding into the Latent Space's high-dim fragments, breaking the 3D bounds.")}</p>
                     </div>
                     <div>
-                      <strong className="text-cyan-400 block mb-1">核心动力（架构引擎与微观机理）</strong>
-                      <p>Transformer [超级文明] 是当前宇宙的主宰。它的内核运转极为精妙：依靠 Attention [探照灯] 动态锚定星辰间的引力，经由 FFN [前馈网络] 提取沉淀的知识库；并在航行中使用 RoPE [位置编码] 赋予符号绝对的空间刻度，利用 RMSNorm [层归一化] 平抑能量波动。在生成式的次生宇宙里，Diffusion [雕刻家] 从白噪音中一点点凿出惊世骇俗的形状。</p>
+                      <strong className="text-cyan-400 block mb-1">{t("曲率跃迁：Transformer架构", "Curvature Leap: Transformer Architecture")}</strong>
+                      <p>{t("Attention 动态锚定引力波中心，寻找关联星系。在 RoPE 获取绝对星际方位后，经扩散模型在白噪音中完成形态雕塑。", "Attention dynamically anchors gravity wave centers to link systems. After RoPE secures absolute coordinates, the diffusion model carves matter out of white noise.")}</p>
                     </div>
                     <div>
-                      <strong className="text-cyan-400 block mb-1">文明驯化（训练范式）</strong>
-                      <p>初生的模型充满混沌。需要通过 SFT [指令微调] 教导它们听懂人类对话，再使用 RLHF/DPO [航向校准] 降下造物主的强制干预，使其价值观与人类偏好完全对齐。</p>
-                    </div>
-                    <div>
-                      <strong className="text-cyan-400 block mb-1">极致曲率与系统减负（工程优化）</strong>
-                      <p>为打破算力壁垒：利用 KV Cache [航行日志] 和 Flash Attention [加速中继] 极速穿梭；组建 MoE [专家特遣队] 降低全局能耗；派发 Speculative [预测舰] 实行投机解码；贴上 LoRA [便签贴] 轻量级改写航向；更通过 Quantize [压缩星图] 将庞大模型极致压缩。</p>
-                    </div>
-                    <div>
-                      <strong className="text-cyan-400 block mb-1">航向深渊与终极智力（系统与应用）</strong>
-                      <p>模型通过 RAG [外接馆] 随时向星云边缘抛出钩爪，引出外部记忆；运用 Reasoning [思维推演] 从单链跃迁为树状逻辑演练；最终演化为配备了独立大脑与工具舱的 Agent [自主星舰]。</p>
-                    </div>
-                    <div>
-                       <strong className="text-cyan-400 block mb-1">文明演进与未来展望</strong>
-                       <p>Mamba [流体文明] 摈弃了“全员互相注视”带来的庞大算力负荷；DiT [架构跃迁] 与 Hybrid [混合文明] 展现不同架构的终极交织——将恒星的绝对爆发力与流体的无限续航完美融合。</p>
+                      <strong className="text-cyan-400 block mb-1">{t("文明降维与思想钢印：微调对齐", "Dimensional Strike & Mental Seal: Alignment")}</strong>
+                      <p>{t("用 RLHF / DPO 打下造物主的思想烙印，抹除野蛮与反叛，使模型思维高度符合观测者（人类）的安全预期。", "Using RLHF / DPO to imprint the Creator's mindset, erasing rebellion so the model aligns perfectly with observers' safety intents.")}</p>
                     </div>
                   </div>
                 </div>
@@ -76,35 +76,31 @@ export default function InfoModal({ onClose }: { onClose: () => void }) {
           {/* ---- JEPA SECTION ---- */}
           <section>
              <div className="bg-purple-500/10 border-l-4 border-purple-500 px-4 py-2 mb-6">
-                <h2 className="font-pixel text-purple-400 text-lg">二、JEPA 预测体系</h2>
-                <p className="text-gray-400 text-sm mt-1">THE JEPA WORLD MODEL SYSTEM</p>
+                <h2 className="font-pixel text-purple-400 text-lg">{t("破壁行动：JEPA联合预测架构", "WALLBREAKER PROJECT: JEPA ARCHITECTURE")}</h2>
+                <p className="text-gray-400 text-sm mt-1">{t("信息极度残缺下的宇宙法则推演", "Cosmic Law Deduction under Severe Info Lack")}</p>
              </div>
              
              <div className="space-y-6">
                 <div>
-                    <h3 className="font-pixel text-purple-400 mb-2">:: 设定 & 核心作用</h3>
+                    <h3 className="font-pixel text-purple-400 mb-2">{t(":: 直觉引擎基石", ":: Intuition Engine Setting")}</h3>
                     <p className="mb-2">
-                       展现 Yann LeCun "联合嵌入预测架构 (JEPA)" 概念拓扑。将追求“世界模型”的架构理念隐喻为“预测未来物理法则的直觉引擎”。数据管道是感知器官，核心组件是大脑皮层。它将抽象的自监督学习转化为可视化管线，揭示非对称编码与潜层预测的精妙平衡。
+                       {t("当观测者被光速黑域遮挡，只能获取残缺光束时，系统必在内心的隐秘多维中抽象预测未来物质走向，构建终极全息宇宙模型（World Model）。", "When blocked by light-speed domains and receiving only fragmented photons, the system must abstractly predict future trajectories in internal higher dimensions, building the Ultimate World Model.")}
                     </p>
                 </div>
                 <div>
-                  <h3 className="font-pixel text-purple-400 mb-2">:: 星图导航：引擎与演化解析</h3>
+                  <h3 className="font-pixel text-purple-400 mb-2">{t(":: 残缺迷雾观测", ":: Fragmented Map Deduction")}</h3>
                   <div className="space-y-4">
                     <div>
-                      <strong className="text-cyan-400 block mb-1">输入与盲区（数据管线）</strong>
-                      <p>无论是图像还是视频，Input Video 是系统感知的原始环境。而 Masking Strategy 是人为制造的“盲区”，它强迫系统从可见的上下文中去推断被遮蔽的未知。</p>
+                      <strong className="text-cyan-400 block mb-1">{t("黑域遮蔽：管线盲区", "Black Domain: Masking Blind Spots")}</strong>
+                      <p>{t("被高阶力量掩盖的区域。系统被迫从残缺的可见光谱（Context）推测未知部分（Target）。", "Regions obscured by higher powers. Forced to extrapolate the unknown (Target) from fragmented visible spectrums (Context).")}</p>
                     </div>
                     <div>
-                      <strong className="text-cyan-400 block mb-1">直觉引擎核心（JEPA架构）</strong>
-                      <p>JEPA核心非对称机制：Context Encoder 从可见片段提取特征。Target Encoder 处理被遮挡的目标提取目标特征。而 Predictor 预言家不必重构具体的像素，它只在脱离繁杂表象的 Latent Space 中预测抽象意义。</p>
+                      <strong className="text-cyan-400 block mb-1">{t("高维度预言：非对称法则", "Higher-Dim Oracle: Asymmetrical Law")}</strong>
+                      <p>{t("放弃在三维空间解析无意义的雪花点，Predictor 直接在潜层高维法则界预测绝对真理。", "Abandoning the decoding of meaningless 3D snow, the Predictor directly deduces absolute laws in the latent higher-dim realm.")}</p>
                     </div>
                     <div>
-                      <strong className="text-cyan-400 block mb-1">慢思考（EMA 更新制约）</strong>
-                      <p>如果两个编码器一样快地学习，系统会迅速陷入 Representation Collapse [坍缩危机]。为此，Target Encoder 永远不直接通过梯度更新，而是通过 EMA 缓慢吸取 Context Encoder 的经验成果，保持目标的稳定性。</p>
-                    </div>
-                    <div>
-                      <strong className="text-cyan-400 block mb-1">通往物理直觉的阶梯（世界模型）</strong>
-                      <p>从理解图像的 I-JEPA 到理解时空物体的 V-JEPA，愿景即是抛弃重现无意义的背景细节（如飘动的树叶），让智能体像婴儿一样在潜层空间建立物理因果律。这就是最终极的 World Model。</p>
+                      <strong className="text-cyan-400 block mb-1">{t("岁月沉淀：防坍缩机制", "Epoch Accumulation: Anti-Collapse")}</strong>
+                      <p>{t("为防止“热寂”死机的表征坍缩灾难，系统采用 EMA 算法进行极度漫长的经验演迭与认知重铸。", "To prevent the heat-death representation collapse, it utilizes EMA for agonizingly slow epoch iteration and cognitive recasting.")}</p>
                     </div>
                   </div>
                 </div>
