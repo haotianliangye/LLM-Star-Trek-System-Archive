@@ -42,7 +42,7 @@ export default function InfoModal({ onClose }: { onClose: () => void }) {
           {/* ---- LLM SECTION ---- */}
           <section>
              <div className="bg-green-500/10 border-l-4 border-green-500 px-4 py-2 mb-6">
-                <h2 className="font-pixel text-green-400 text-lg">{t("面壁计划：AI 模型档案馆", "WALLFACER PROJECT: AI MODEL ARCHIVE")}</h2>
+                <h2 className="font-pixel text-green-400 text-lg">{t("面壁计划：LLM 档案馆", "WALLFACER PROJECT: LLM ARCHIVE")}</h2>
                 <p className="text-gray-400 text-sm mt-1">{t("黑暗森林中的智能演化", "Intelligence Evolution in the Dark Forest")}</p>
              </div>
              
