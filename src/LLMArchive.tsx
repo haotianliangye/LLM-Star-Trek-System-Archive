@@ -51,7 +51,7 @@ const CONCEPTS: ConceptNode[] = [
   },
   {
     id: 'clip', en: 'CLIP', cn: '[翻译官]', icon: '▣', color: '#C026D3',
-    x: 30, y: 30,
+    x: 30, y: 15,
     archive: '跨模态翻译：CLIP (Contrastive Language-Image Pre-training)',
     metaphor: '"打破维度壁垒的星际翻译官，让图与文在同一坐标系下共舞。"',
     desc: '训练视觉和文本编码器，用对比学习强制匹配的图文向量在 Latent Space 中占据同一坐标。以文搜图、零样本分类的基础。'
