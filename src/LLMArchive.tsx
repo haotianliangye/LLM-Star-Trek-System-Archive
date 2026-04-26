@@ -128,7 +128,7 @@ const CONCEPTS: ConceptNode[] = [
   },
   {
     id: 'rlhf', en: 'RLHF/DPO', cn: '[航向校准]', icon: '⚖\uFE0F', color: '#10B981',
-    x: 80, y: 75,
+    x: 80, y: 73.1,
     archive: '人类偏好：RLHF (Reinforcement Learning from Human Feedback) / DPO (Direct Preference Optimization)',
     metaphor: '"造物主下达的强制干预，纠正即将滑向深渊的有害轨道。"',
     desc: '人类评委或直接偏好打分，修正答案向量落向的“好区域”。文明内部重新规划星路对齐偏好。'
