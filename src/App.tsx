@@ -39,27 +39,27 @@ export default function App() {
 
           <button
           onClick={() => setActiveTab('llm')}
-          className={`h-8 flex items-center px-4 border transition-all ${
+          className={`cursor-pointer h-8 flex items-center px-4 border transition-all ${
             activeTab === 'llm' 
               ? 'bg-cyan-500/20 border-cyan-400 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]' 
               : 'bg-transparent border-gray-600 text-gray-400 hover:border-cyan-400/50 hover:text-cyan-400/80'
           }`}
         >
-          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap mt-[2px]">
-            LLM System
+          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap mt-[2px] flex items-center gap-1.5">
+            <span className="animate-pulse text-[24px] font-normal leading-[14px] relative -top-[1px]">◆</span> LLM
           </span>
         </button>
 
         <button
           onClick={() => setActiveTab('jepa')}
-          className={`h-8 flex items-center px-4 border transition-all ${
+          className={`cursor-pointer h-8 flex items-center px-4 border transition-all ${
             activeTab === 'jepa' 
               ? 'bg-purple-500/20 border-purple-400 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.5)]' 
               : 'bg-transparent border-gray-600 text-gray-400 hover:border-purple-400/50 hover:text-purple-400/80'
           }`}
         >
-          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap mt-[2px]">
-            JEPA Architecture
+          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap mt-[2px] flex items-center gap-1.5">
+            <span className="animate-pulse text-[24px] font-normal leading-[14px] relative -top-[1px]">◇</span> JEPA
           </span>
         </button>
         </div>
