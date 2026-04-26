@@ -22,12 +22,15 @@ service cloud.firestore {
     }
 
     function isValidChatMessage(data) {
-      return data.keys().hasAll(['userId', 'nodeId', 'role', 'text', 'createdAt'])
-        && data.keys().size() == 5
+      let hasRequiredKeys = data.keys().hasAll(['userId', 'nodeId', 'role', 'text', 'createdAt']);
+      let isValidKeysSize = data.keys().size() == 5 || (data.keys().hasAll(['reasoning']) && data.keys().size() == 6);
+      return hasRequiredKeys
+        && isValidKeysSize
         && data.userId == request.auth.uid
         && data.nodeId is string
         && data.role in ['user', 'model']
         && data.text is string
+        && (data.keys().hasAny(['reasoning']) ? data.reasoning is string : true)
         && data.createdAt == request.time;
     }
 

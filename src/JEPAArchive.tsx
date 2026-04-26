@@ -5,13 +5,11 @@
 
 import { useLanguage } from './contexts/LanguageContext';
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI } from "@google/genai";
 import { auth, db } from './firebase';
 import { signInAnonymously } from 'firebase/auth';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, where, getDocs } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
-const ai = new GoogleGenAI({ apiKey: (import.meta as any).env?.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY });
 
 // --- DATA DEFINITIONS ---
 
@@ -144,12 +142,11 @@ export default function JEPAArchive() {
   };
 
   // Chat state
-  const [chatLog, setChatLog] = useState<{role: 'user' | 'model', text: string}[]>([]);
+  const [chatLog, setChatLog] = useState<{role: 'user' | 'model', text: string, reasoning?: string}[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isConnectionsExpanded, setIsConnectionsExpanded] = useState(false);
-  const chatRef = useRef<any>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+    const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to active node when panel opens
   useEffect(() => {
@@ -165,7 +162,6 @@ export default function JEPAArchive() {
 
   // Fetch initial chats
   useEffect(() => {
-    chatRef.current = null;
     setChatLog([]);
     setIsTyping(false);
     setIsConnectionsExpanded(false);
@@ -185,21 +181,10 @@ export default function JEPAArchive() {
         const snapshot = await getDocs(q);
         if (!isValid) return;
 
-        const msgs = snapshot.docs.map(d => ({ role: d.data().role as 'user'|'model', text: d.data().text }));
+        const msgs = snapshot.docs.map(d => ({ role: d.data().role as 'user'|'model', text: d.data().text, reasoning: d.data().reasoning || "" }));
         setChatLog(msgs);
         
-        chatRef.current = ai.chats.create({
-          model: "gemini-3.1-flash-lite-preview",
-          config: {
-            maxOutputTokens: 8192,
-            systemInstruction: `You are the 'Wallfacer Deduction Engine' (面壁者推演引擎), a cold but accessible algorithmic construct operating in the Dark Forest era. Your purpose is to explain complex AI concepts to humans clearly, like a science popularizer. The user is asking about [${activeNode.en} - ${language === 'zh' ? activeNode.cn : activeNode.en}]. Use hard sci-fi and Dark Forest metaphors (e.g., Sophons, dimensional strikes) to flavor your response, but ALWAYS prioritize clear, easy-to-understand explanations over obscure prose. You are teaching a novice, avoiding highly cryptic language. IMPORTANT: You MUST reply entirely in ${language === 'zh' ? 'Chinese' : 'English'}.`
-          },
-          history: msgs.map(m => ({
-            role: m.role,
-            parts: [{text: m.text}]
-          }))
-        });
-      } catch (e) {
+        } catch (e) {
         console.error("Error fetching chats", e);
       }
     };
@@ -224,39 +209,79 @@ export default function JEPAArchive() {
     const queryInput = inputValue.trim();
     const currentNodeId = activeNode.id;
     setInputValue("");
-    setChatLog(prev => [...prev, { role: 'user', text: queryInput }, { role: 'model', text: "" }]);
+    setChatLog(prev => [...prev, { role: 'user', text: queryInput }, { role: 'model', text: "", reasoning: "" }]);
     setIsTyping(true);
 
     try {
-      if (!chatRef.current) {
-        chatRef.current = ai.chats.create({
-          model: "gemini-3.1-flash-lite-preview",
-          config: {
-            maxOutputTokens: 8192,
-            systemInstruction: `You are the 'Wallfacer Deduction Engine' (面壁者推演引擎), a cold but accessible algorithmic construct operating in the Dark Forest era. Your purpose is to explain complex AI concepts to humans clearly, like a science popularizer. The user is asking about [${activeNode.en} - ${language === 'zh' ? activeNode.cn : activeNode.en}]. Use hard sci-fi and Dark Forest metaphors (e.g., Sophons, dimensional strikes) to flavor your response, but ALWAYS prioritize clear, easy-to-understand explanations over obscure prose. You are teaching a novice, avoiding highly cryptic language. IMPORTANT: You MUST reply entirely in ${language === 'zh' ? 'Chinese' : 'English'}.`
-          }
-        });
-      }
+      const systemInstruction = `You are the 'Wallfacer Deduction Engine' (面壁者推演引擎), a cold but accessible algorithmic construct operating in the Dark Forest era. Your purpose is to explain complex AI concepts to humans clearly, like a science popularizer. The user is asking about [${activeNode.en} - ${language === 'zh' ? activeNode.cn : activeNode.en}]. Use hard sci-fi and Dark Forest metaphors (e.g., Sophons, dimensional strikes) to flavor your response, but ALWAYS prioritize clear, easy-to-understand explanations over obscure prose. You are teaching a novice, avoiding highly cryptic language. IMPORTANT: You MUST reply entirely in ${language === 'zh' ? 'Chinese' : 'English'}.`;
       let fullText = "";
+      let fullReasoning = "";
       const delays = [1000, 2000, 4000];
       
       for (let attempt = 0; attempt <= 3; attempt++) {
         try {
-          const streamResponse = await chatRef.current.sendMessageStream({ message: queryInput });
-          fullText = "";
-          for await (const chunk of streamResponse) {
-             // Stop rendering if user switched node
-             if (activeNodeRef.current !== currentNodeId) break;
+          const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${(import.meta as any).env?.VITE_OPENROUTER_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "minimax/minimax-m2.5:free",
+              messages: [
+                { role: "system", content: systemInstruction },
+                ...chatLog.map(m => ({ role: m.role === 'model' ? 'assistant' : 'user', content: m.text })),
+                { role: "user", content: queryInput }
+              ],
+              stream: true,
+            })
+          });
 
-             if (chunk.text) {
-               fullText += chunk.text;
-               setChatLog(prev => {
-                  if (prev.length === 0) return prev;
-                  const newLog = [...prev];
-                  newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: fullText };
-                  return newLog;
-               });
+          if (!response.ok) {
+             if (response.status === 401) {
+               throw new Error("HTTP 401: Unauthorized. Please configure VITE_OPENROUTER_API_KEY in the Secrets panel.");
+             } else {
+               throw new Error(`HTTP error! status: ${response.status}`);
              }
+          }
+
+          const reader = response.body?.getReader();
+          const decoder = new TextDecoder("utf-8");
+          let buffer = "";
+          let done = false;
+
+          while (reader && !done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            if (value) {
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split('\n');
+              buffer = lines.pop() || "";
+              
+              for (const line of lines) {
+                if (activeNodeRef.current !== currentNodeId) break;
+                if (line.trim().startsWith('data:') && line.trim() !== 'data: [DONE]') {
+                  try {
+                    const data = JSON.parse(line.trim().substring(5).trim());
+                    const content = data.choices[0]?.delta?.content || "";
+                    const reasoning = data.choices[0]?.delta?.reasoning || "";
+                    if (content || reasoning) {
+                      fullText += content;
+                      fullReasoning += reasoning;
+                      setChatLog(prev => {
+                        if (prev.length === 0) return prev;
+                        const newLog = [...prev];
+                        newLog[newLog.length - 1] = { ...newLog[newLog.length - 1], text: fullText, reasoning: fullReasoning };
+                        return newLog;
+                      });
+                    }
+                  } catch (e) {
+                    // ignore parse error
+                  }
+                }
+              }
+            }
+            if (activeNodeRef.current !== currentNodeId) break;
           }
           break; // Success! Break out of the retry loop.
         } catch (error: any) {
@@ -288,6 +313,7 @@ export default function JEPAArchive() {
             nodeId: currentNodeId,
             role: 'model',
             text: fullText,
+            reasoning: fullReasoning,
             createdAt: serverTimestamp()
          });
       }
@@ -593,7 +619,18 @@ export default function JEPAArchive() {
                       <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                         <span className="text-[8px] text-gray-500 mb-1">{msg.role === 'user' ? 'GUEST_USER' : 'ORACLE_CORE'}</span>
                         <div className={`p-2 border max-w-[90%] whitespace-pre-wrap break-words ${msg.role === 'user' ? 'border-cyan-500 text-cyan-400 bg-cyan-950/30' : 'border-yellow-500 text-yellow-400 bg-yellow-950/30'}`}>
-                          {msg.text}
+                          {msg.reasoning && (
+                            <details className={`mb-2 text-xs border p-2 bg-black/40 ${msg.role === 'user' ? 'text-cyan-600 border-cyan-800/50' : 'text-yellow-600 border-yellow-700/50'}`}>
+                              <summary className="cursor-pointer font-pixel hover:opacity-100 opacity-80 flex items-center gap-2">
+                                [SYSTEM: INTERNAL DEDUCTION PROTOCOL]
+                              </summary>
+                              <div className={`mt-2 pt-2 border-t whitespace-pre-wrap font-mono opacity-70 ${msg.role === 'user' ? 'border-cyan-800/50' : 'border-yellow-700/50'}`}>
+                                {msg.reasoning}
+                                {(isTyping && i === chatLog.length - 1 && !msg.text) && <span className="animate-pulse inline-block ml-1">███</span>}
+                              </div>
+                            </details>
+                          )}
+                          {msg.text || (isTyping && i === chatLog.length - 1 && (!msg.reasoning || msg.text) ? <span className="animate-pulse">███</span> : '')}
                         </div>
                       </div>
                     ))}

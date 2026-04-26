@@ -16,43 +16,43 @@ export default function App() {
         <div className="flex items-center gap-4">
           <div 
             onClick={() => setShowInfoModal(true)}
-            className="font-pixel text-[12px] text-cyan-400 border border-cyan-400 px-2 py-1 flex items-center shadow-[0_0_8px_rgba(34,211,238,0.3)] bg-black/50 cursor-pointer hover:bg-cyan-900/40 transition-colors group"
+            className="h-8 font-pixel text-[12px] text-cyan-400 border border-cyan-400 px-3 flex items-center shadow-[0_0_8px_rgba(34,211,238,0.3)] bg-black/50 cursor-pointer hover:bg-cyan-900/40 transition-colors group"
           >
-            <div className="w-2 h-2 bg-green-500 group-hover:bg-[#00ff41] animate-pulse mr-2"></div>
-            <span className="text-red-500 group-hover:text-[#00ff41] transition-colors">{t('SYSTEM ONLINE', 'SYSTEM ONLINE')}</span>
+            <div className="w-2 h-2 bg-green-500 group-hover:bg-[#00ff41] animate-pulse mr-2 mt-[1px]"></div>
+            <span className="text-red-500 group-hover:text-[#00ff41] transition-colors mt-[2px]">{t('SYSTEM ONLINE', 'SYSTEM ONLINE')}</span>
           </div>
           
           <button
             onClick={toggleLanguage}
-            className="font-pixel text-[12px] text-yellow-400 border border-yellow-400 px-2 py-1 flex items-center justify-center gap-1 shadow-[0_0_8px_rgba(250,204,21,0.3)] bg-black/50 cursor-pointer hover:bg-yellow-900/40 transition-colors leading-none"
+            className="h-8 font-pixel text-[12px] text-yellow-400 border border-yellow-400 px-3 flex items-center justify-center gap-1 shadow-[0_0_8px_rgba(250,204,21,0.3)] bg-black/50 cursor-pointer hover:bg-yellow-900/40 transition-colors"
           >
-            <span>[</span>
-            <span className={language !== 'zh' ? '-translate-y-[1px]' : ''}>{language === 'zh' ? 'EN' : '中'}</span>
-            <span>]</span>
+            <span className="mt-[2px]">[</span>
+            <span className={`mt-[2px] ${language !== 'zh' ? '-translate-y-[1px]' : ''}`}>{language === 'zh' ? 'EN' : '中'}</span>
+            <span className="mt-[2px]">]</span>
           </button>
 
           <button
           onClick={() => setActiveTab('llm')}
-          className={`flex items-center px-4 py-1.5 border transition-all ${
+          className={`h-8 flex items-center px-4 border transition-all ${
             activeTab === 'llm' 
               ? 'bg-cyan-500/20 border-cyan-400 text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]' 
               : 'bg-transparent border-gray-600 text-gray-400 hover:border-cyan-400/50 hover:text-cyan-400/80'
           }`}
         >
-          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap">
+          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap mt-[2px]">
             LLM System
           </span>
         </button>
 
         <button
           onClick={() => setActiveTab('jepa')}
-          className={`flex items-center px-4 py-1.5 border transition-all ${
+          className={`h-8 flex items-center px-4 border transition-all ${
             activeTab === 'jepa' 
               ? 'bg-purple-500/20 border-purple-400 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.5)]' 
               : 'bg-transparent border-gray-600 text-gray-400 hover:border-purple-400/50 hover:text-purple-400/80'
           }`}
         >
-          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap">
+          <span className="font-sans font-bold text-[14px] leading-none tracking-widest whitespace-nowrap mt-[2px]">
             JEPA Architecture
           </span>
         </button>
