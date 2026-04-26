@@ -93,7 +93,7 @@ const CONCEPTS: ConceptNode[] = [
   },
   {
     id: 'attention', en: 'ATTENTION', cn: '[探照灯]', icon: '🔦', color: '#06B6D4',
-    x: 70, y: 30,
+    x: 70, y: 32.2,
     archive: '微观机制：Attention',
     metaphor: '"恒星间的互相照亮与拉扯，用光斑指引下一次跃迁。"',
     desc: 'Q 与所有 K 做点积得到权重，再对 V 加权求和。让每颗星星动态决定向哪些邻居借力更新位置。'
