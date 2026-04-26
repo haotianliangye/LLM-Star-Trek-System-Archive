@@ -588,26 +588,42 @@ export default function JEPAArchive() {
               {/* Chat History */}
               <div className="flex-1 overflow-y-auto p-3 space-y-4 font-mono text-xs">
                     {chatLog.length === 0 && (
-                      <div className="text-yellow-600 animate-pulse text-center pt-8">
+                      <div className="text-amber-500/80 animate-pulse text-center pt-8">
                         {language === 'zh' ? '正在启动面壁推演引擎...' : 'INITIALIZING WALLFACER DEDUCTION...'}
                       </div>
                     )}
                     {chatLog.map((msg, i) => (
                       <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                        <span className="text-[8px] text-gray-500 mb-1">{msg.role === 'user' ? 'GUEST_USER' : 'ORACLE_CORE'}</span>
-                        <div className={`p-2 border max-w-[90%] whitespace-pre-wrap break-words ${msg.role === 'user' ? 'border-cyan-500 text-cyan-400 bg-cyan-950/30' : 'border-yellow-500 text-yellow-400 bg-yellow-950/30'}`}>
+                        <span className={`mb-1 ${msg.role === 'user' ? 'text-[8px] text-gray-500' : 'text-[12px] text-yellow-400 font-bold'}`}>{msg.role === 'user' ? (language === 'zh' ? '访客' : 'GUEST_USER') : (language === 'zh' ? '神谕核心' : 'ORACLE_CORE')}</span>
+                        <div className={`p-2 border max-w-[90%] whitespace-pre-wrap break-words ${msg.role === 'user' ? 'border-cyan-500 text-cyan-400 bg-cyan-950/30' : 'border-amber-500/40 text-amber-100/90 bg-amber-950/20'}`}>
                           {msg.reasoning && (
-                            <details className={`mb-2 text-xs border p-2 bg-black/40 ${msg.role === 'user' ? 'text-cyan-600 border-cyan-800/50' : 'text-yellow-600 border-yellow-700/50'}`}>
+                            <details className={`mb-2 text-xs border p-2 bg-black/40 ${msg.role === 'user' ? 'text-cyan-600 border-cyan-800/50' : 'text-amber-600/70 border-amber-800/40'}`}>
                               <summary className={`cursor-pointer hover:opacity-100 opacity-80 flex items-center gap-2 ${language === 'zh' ? 'font-bold font-sans text-xs tracking-widest' : 'font-pixel text-[10px]'} animate-pulse`}>
-                                {language === 'zh' ? '面壁协议推演中...' : 'WALLFACER PROTOCOL DEDUCING...'}
+                                {language === 'zh' ? '面壁引擎推演中...' : 'WALLFACER ENGINE DEDUCING...'}
                               </summary>
-                              <div className={`mt-2 pt-2 border-t whitespace-pre-wrap font-mono opacity-70 ${msg.role === 'user' ? 'border-cyan-800/50' : 'border-yellow-700/50'}`}>
+                              <div className={`mt-2 pt-2 border-t whitespace-pre-wrap font-mono opacity-70 ${msg.role === 'user' ? 'border-cyan-800/50' : 'border-amber-800/40'}`}>
                                 {msg.reasoning}
-                                {(isTyping && i === chatLog.length - 1 && !msg.text) && <span className="animate-pulse inline-block ml-1">███</span>}
+                                {(isTyping && i === chatLog.length - 1 && !msg.text) && (
+                                  <span className="inline-flex gap-[4px] ml-2 opacity-90 text-lg">
+                                    <span className="animate-pulse" style={{ animationDuration: '1.5s', animationDelay: '0ms' }}>■</span>
+                                    <span className="animate-pulse" style={{ animationDuration: '1.5s', animationDelay: '200ms' }}>■</span>
+                                    <span className="animate-pulse" style={{ animationDuration: '1.5s', animationDelay: '400ms' }}>■</span>
+                                    <span className="animate-pulse opacity-50" style={{ animationDuration: '1.5s', animationDelay: '600ms' }}>□</span>
+                                    <span className="animate-pulse opacity-50" style={{ animationDuration: '1.5s', animationDelay: '800ms' }}>□</span>
+                                  </span>
+                                )}
                               </div>
                             </details>
                           )}
-                          {msg.text || (isTyping && i === chatLog.length - 1 && (!msg.reasoning || msg.text) ? <span className="animate-pulse">███</span> : '')}
+                          {msg.text || (isTyping && i === chatLog.length - 1 && (!msg.reasoning || msg.text) ? (
+                            <span className="inline-flex gap-[4px] ml-2 opacity-90 text-amber-400 text-lg">
+                              <span className="animate-pulse" style={{ animationDuration: '1.5s', animationDelay: '0ms' }}>■</span>
+                              <span className="animate-pulse" style={{ animationDuration: '1.5s', animationDelay: '200ms' }}>■</span>
+                              <span className="animate-pulse" style={{ animationDuration: '1.5s', animationDelay: '400ms' }}>■</span>
+                              <span className="animate-pulse opacity-50" style={{ animationDuration: '1.5s', animationDelay: '600ms' }}>□</span>
+                              <span className="animate-pulse opacity-50" style={{ animationDuration: '1.5s', animationDelay: '800ms' }}>□</span>
+                            </span>
+                          ) : '')}
                         </div>
                       </div>
                     ))}
