@@ -12,8 +12,8 @@ export default function App() {
   return (
     <div className="h-screen w-screen relative bg-[#0c001a] overflow-hidden flex flex-col font-mono text-[#00ff41]">
       {/* Top Terminal Tabs Navigation */}
-      <div className="flex-none p-2 border-b-2 border-cyan-400/50 bg-black/80 flex items-center justify-between gap-4 z-[999]">
-        <div className="flex items-center gap-4">
+      <div className="flex-none p-2 border-b-2 border-cyan-400/50 bg-black/80 flex items-center z-[999]">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           <div 
             onClick={() => setShowInfoModal(true)}
             className="h-8 font-pixel text-[12px] text-cyan-400 border border-cyan-400 px-3 flex items-center shadow-[0_0_8px_rgba(34,211,238,0.3)] bg-black/50 cursor-pointer hover:bg-cyan-900/40 transition-colors group gap-1"
