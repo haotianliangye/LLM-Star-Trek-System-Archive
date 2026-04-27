@@ -47,9 +47,9 @@ export const CONCEPTS: ConceptNode[] = [
     desc: 'JEPA的灵魂组件。它接收上下文表征(s_x)和有关缺失区域的位置信息，直接在潜空间(Latent Space)中推断目标表征(s_y\')，而不是像传统模型那样去重构像素。', desc_en: 'The soul of JEPA. It takes the context representations (s_x) and positional information of missing regions to directly infer the target representations (s_y\') in the Latent Space, instead of reconstructing pixels like traditional models.'
   },
   { 
-    id: 'latent_space', en: 'LATENT SPACE', cn: '[高维流形]', cn_en: '[High-Dimensional Manifold]', icon: '🌌', color: '#C026D3', x: 70, y: 55, 
+    id: 'latent_space', en: 'LATENT SPACE', cn: '[高维空间]', cn_en: '[High-Dimensional Space]', icon: '🌌', color: '#C026D3', x: 70, y: 55, 
     archive: 'Core: Latent Representation', archive_en: 'Core: Latent Representation',
-    metaphor: '"剥离所有低阶视觉干扰的纯粹特征流形。不再纠结于风吹落叶的混沌像素，而是直接在高维空间推演质量传递与时空曲率的核心法则。"', metaphor_en: '"A pure feature manifold stripped of all low-level visual interference. No longer entangled in the chaotic pixels of wind-blown leaves, it directly deduces the core laws of mass transfer and spacetime curvature in high-dimensional space."',
+    metaphor: '"剥离低维视觉幻象的纯粹法则空间。不再纠结于像素的混沌，而是直接置身于高维空间的坐标系中，推演质量、引力与时空曲率的最核心规律。"', metaphor_en: '"A pure space of laws stripped of low-dimensional visual illusions. No longer entangled in chaotic pixels, it directly positions itself in a high-dimensional coordinate system to deduce the most core laws of mass, gravity, and spacetime curvature."',
     desc: '所有的预测与对比都发生在这个抽象空间。避免了预测复杂却无意义的背景细节（比如随风飘动的树叶），迫使模型理解深层物理和语义核心。', desc_en: 'All predictions and comparisons occur in this abstract space. It avoids predicting complex but meaningless background details (like leaves blowing in the wind), forcing the model to understand deep physical and semantic cores.'
   },
   { 
