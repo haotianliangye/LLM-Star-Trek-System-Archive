@@ -47,9 +47,9 @@ export const CONCEPTS: ConceptNode[] = [
     desc: 'JEPA的灵魂组件。它接收上下文表征(s_x)和有关缺失区域的位置信息，直接在潜空间(Latent Space)中推断目标表征(s_y\')，而不是像传统模型那样去重构像素。', desc_en: 'The soul of JEPA. It takes the context representations (s_x) and positional information of missing regions to directly infer the target representations (s_y\') in the Latent Space, instead of reconstructing pixels like traditional models.'
   },
   { 
-    id: 'latent_space', en: 'LATENT SPACE', cn: '[高维法则界]', cn_en: '[Higher-Law Realm]', icon: '🌌', color: '#C026D3', x: 70, y: 55, 
+    id: 'latent_space', en: 'LATENT SPACE', cn: '[高维流形]', cn_en: '[High-Dimensional Manifold]', icon: '🌌', color: '#C026D3', x: 70, y: 55, 
     archive: 'Core: Latent Representation', archive_en: 'Core: Latent Representation',
-    metaphor: '"超越像素表面，直接触及引力和质量的本质空间。所有的博弈与推演都在这里发生，化为纯粹的数学法则坐标。"', metaphor_en: '"Transcending pixel surfaces, directly touching the essential space of gravity and mass. All deductions and games happen here, reduced to pure mathematical coordinates."',
+    metaphor: '"剥离所有低阶视觉干扰的纯粹特征流形。不再纠结于风吹落叶的混沌像素，而是直接在高维空间推演质量传递与时空曲率的核心法则。"', metaphor_en: '"A pure feature manifold stripped of all low-level visual interference. No longer entangled in the chaotic pixels of wind-blown leaves, it directly deduces the core laws of mass transfer and spacetime curvature in high-dimensional space."',
     desc: '所有的预测与对比都发生在这个抽象空间。避免了预测复杂却无意义的背景细节（比如随风飘动的树叶），迫使模型理解深层物理和语义核心。', desc_en: 'All predictions and comparisons occur in this abstract space. It avoids predicting complex but meaningless background details (like leaves blowing in the wind), forcing the model to understand deep physical and semantic cores.'
   },
   { 

@@ -26,9 +26,9 @@ export const CONCEPTS: ConceptNode[] = [
     desc: '承载了特征与语义的数值数组。在这个阶段，语言的表面形态已经消失，变成了纯粹可计算的数学方向向量。', desc_en: 'A numerical array carrying features and semantics. At this stage, the surface form of language vanishes, becoming a purely computable mathematical direction vector.'
   },
   { 
-    id: 'latent', en: 'LATENT SPACE', cn: '[四维空间]', cn_en: '[Fourth Dimension]', icon: '🌌', color: '#C026D3', x: 39.3, y: 45, 
+    id: 'latent', en: 'LATENT SPACE', cn: '[高维流形]', cn_en: '[High-Dimensional Manifold]', icon: '🌌', color: '#C026D3', x: 39.3, y: 45, 
     archive: '核心域：Latent Space', archive_en: 'Core Domain: Latent Space',
-    metaphor: '"超越现实表象的高维物理空间。在这里，数据的骨骼与语义的内脏一览无余，所有三维世界看似不相干的概念，都在更高的维度上紧密相连。"', metaphor_en: '"A high-dimensional complex survival environment. All human hopes, fears, and logic collide and intertwine in this invisible colossal space."',
+    metaphor: '"蜷曲在微观的高维流形碎片。在这里，三维世界的语法表象被完全折叠，看似毫无关联的语义节点，在弯曲的时空曲率中紧密短接。"', metaphor_en: '"A curled high-dimensional manifold fragment. Here, the syntactic surface of the 3D world is completely folded, and seemingly unrelated semantic nodes are tightly short-circuited in the curved spacetime."',
     desc: '深度学习模型内部处理数据的多维抽象空间。在这个空间里，意义相近的概念会在几何距离上靠得更近。', desc_en: 'A multi-dimensional abstract space inside deep learning models for processing data. In this space, concepts with similar meanings are geometrically closer.'
   },
   { 
